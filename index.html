@@ -1,581 +1,729 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Arizona MVD Knowledge Test</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',sans-serif;background:#e8edf2;min-height:100vh;color:#1a2332}
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Arizona MVD Knowledge Test</title>
+<style>
+:root{
+  --bg:#e8edf2;--card:#fff;--text:#1a2332;--muted:#64748b;--border:#e2e8f0;
+  --hdr:#1a3a5c;--hdr-text:#fff;--opt-border:#e2e8f0;--opt-hover:#eff6ff;
+  --opt-sel:#dbeafe;--opt-sel-b:#2563eb;--nav-empty:#fff;--input-bg:#f8fafc;
+  --green:#16a34a;--red:#dc2626;--yellow:#f59e0b;--blue:#2563eb;
+}
+[data-theme="dark"]{
+  --bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--border:#334155;
+  --hdr:#020617;--hdr-text:#e2e8f0;--opt-border:#334155;--opt-hover:#1e3a5c;
+  --opt-sel:#1e3a5c;--opt-sel-b:#60a5fa;--nav-empty:#1e293b;--input-bg:#0f172a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+.hidden{display:none!important}
+button{cursor:pointer;font-family:inherit}
 
-    /* ── SHARED ── */
-    .hidden{display:none!important}
-    h1{font-size:1.5rem;font-weight:800}
-    h2{font-size:1.2rem;font-weight:700}
+/* ── START SCREEN ── */
+#screen-start{display:flex;flex-direction:column;align-items:center;padding:32px 16px;min-height:100vh}
+.start-card{background:var(--card);border-radius:14px;padding:36px 40px;max-width:620px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.start-top{text-align:center;margin-bottom:24px}
+.start-top .seal{font-size:48px}
+.start-top h1{color:var(--hdr);font-size:1.5rem;margin-top:8px}
+.start-top p{color:var(--muted);font-size:.9rem;margin-top:4px}
 
-    /* ── START SCREEN ── */
-    #screen-start{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-    .start-card{background:white;border-radius:14px;padding:40px 48px;max-width:580px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1);text-align:center}
-    .az-seal{font-size:56px;margin-bottom:16px}
-    .start-card h1{color:#1a3a5c;margin-bottom:6px}
-    .start-card .subtitle{color:#64748b;margin-bottom:28px;font-size:.95rem}
-    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;text-align:left}
-    .info-item{background:#f1f5f9;border-radius:8px;padding:12px 16px}
-    .info-item .label{font-size:.75rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
-    .info-item .value{font-weight:700;color:#1a3a5c;font-size:1rem}
-    .btn-primary{background:#1a3a5c;color:white;border:none;border-radius:8px;padding:14px 40px;font-size:1rem;font-weight:700;cursor:pointer;width:100%;transition:background .2s}
-    .btn-primary:hover{background:#2563eb}
-    .disclaimer{font-size:.8rem;color:#94a3b8;margin-top:16px}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.mode-btn{padding:18px 12px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);text-align:center;transition:all .15s}
+.mode-btn:hover{border-color:var(--blue)}
+.mode-btn.active{border-color:var(--blue);background:var(--opt-sel)}
+.mode-btn .mode-icon{font-size:28px;display:block;margin-bottom:6px}
+.mode-btn .mode-name{font-weight:700;font-size:.95rem}
+.mode-btn .mode-desc{font-size:.78rem;color:var(--muted);margin-top:3px}
 
-    /* ── TEST SCREEN ── */
-    #screen-test{min-height:100vh;display:flex;flex-direction:column}
-    .test-header{background:#1a3a5c;color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-    .test-header-left h2{font-size:1rem;font-weight:700}
-    .test-header-left p{font-size:.8rem;opacity:.75;margin-top:1px}
-    .timer{background:rgba(255,255,255,.15);border-radius:6px;padding:6px 14px;font-size:.95rem;font-weight:700;letter-spacing:.04em}
+.section-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+.cat-check{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);cursor:pointer;font-size:.88rem;user-select:none}
+.cat-check input{accent-color:var(--blue);width:15px;height:15px}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
-    .progress-bar-wrap{background:#d1dce9;height:6px}
-    .progress-bar{background:#2563eb;height:6px;transition:width .3s}
+.start-btn{width:100%;padding:14px;border-radius:10px;border:none;background:var(--hdr);color:var(--hdr-text);font-size:1rem;font-weight:700;transition:background .2s;margin-top:4px}
+.start-btn:hover{background:var(--blue)}
+.start-note{font-size:.78rem;color:var(--muted);text-align:center;margin-top:10px}
 
-    .test-body{display:flex;flex:1;gap:0}
+/* score history */
+.history-card{background:var(--card);border-radius:14px;padding:24px 32px;max-width:620px;width:100%;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-top:20px}
+.history-card h3{font-size:.95rem;font-weight:700;margin-bottom:12px;color:var(--text)}
+.history-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.history-table th{background:var(--hdr);color:var(--hdr-text);padding:8px 12px;text-align:left;font-weight:600}
+.history-table th:first-child{border-radius:6px 0 0 0}
+.history-table th:last-child{border-radius:0 6px 0 0}
+.history-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.history-table tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge.pass{background:#dcfce7;color:var(--green)}
+.badge.fail{background:#fee2e2;color:var(--red)}
+.no-history{color:var(--muted);font-size:.85rem;font-style:italic}
 
-    /* Nav panel */
-    .nav-panel{background:white;width:220px;flex-shrink:0;padding:16px;border-right:1px solid #e2e8f0;overflow-y:auto}
-    .nav-panel h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:10px}
-    .nav-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-    .nav-dot{width:34px;height:34px;border-radius:6px;border:2px solid #cbd5e1;background:white;font-size:.8rem;font-weight:700;cursor:pointer;color:#64748b;transition:all .15s;display:flex;align-items:center;justify-content:center}
-    .nav-dot:hover{border-color:#2563eb;color:#2563eb}
-    .nav-dot.current{border-color:#2563eb;background:#2563eb;color:white}
-    .nav-dot.answered{border-color:#16a34a;background:#dcfce7;color:#15803d}
-    .nav-dot.flagged{border-color:#f59e0b;background:#fef3c7;color:#92400e}
-    .nav-dot.answered.flagged{border-color:#f59e0b;background:#fef3c7;color:#92400e}
-    .nav-legend{margin-top:14px;font-size:.75rem;color:#64748b}
-    .nav-legend-item{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-    .legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+/* ── TEST HEADER ── */
+.test-header{background:var(--hdr);color:var(--hdr-text);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.test-header-left h2{font-size:1rem;font-weight:700}
+.test-header-left p{font-size:.75rem;opacity:.75}
+.header-controls{display:flex;align-items:center;gap:8px}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:var(--hdr-text);padding:6px 12px;border-radius:6px;font-size:.8rem;font-weight:600;transition:background .15s}
+.hdr-btn:hover{background:rgba(255,255,255,.28)}
+.timer{background:rgba(255,255,255,.15);border-radius:6px;padding:6px 14px;font-size:.95rem;font-weight:700;letter-spacing:.04em;min-width:68px;text-align:center}
+.mode-badge{background:rgba(255,255,255,.2);border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;letter-spacing:.04em}
 
-    /* Question area */
-    .question-area{flex:1;padding:32px 40px;overflow-y:auto}
-    .q-counter{font-size:.85rem;color:#64748b;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
-    .q-text{font-size:1.1rem;font-weight:600;line-height:1.6;margin-bottom:24px;color:#1a2332}
-    .options{display:flex;flex-direction:column;gap:10px;max-width:680px}
-    .option-label{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all .15s;background:white}
-    .option-label:hover{border-color:#2563eb;background:#eff6ff}
-    .option-label.selected{border-color:#2563eb;background:#dbeafe}
-    .option-letter{width:28px;height:28px;border-radius:50%;border:2px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#64748b;flex-shrink:0;margin-top:1px;transition:all .15s}
-    .option-label.selected .option-letter{border-color:#2563eb;background:#2563eb;color:white}
-    .option-label input{display:none}
-    .option-text{font-size:.95rem;line-height:1.5}
+.progress-bar-wrap{background:#c7d3e0;height:5px}
+.progress-bar{background:var(--blue);height:5px;transition:width .3s}
 
-    .flag-row{display:flex;align-items:center;gap:8px;margin-top:20px;cursor:pointer;width:fit-content;user-select:none}
-    .flag-row input{accent-color:#f59e0b;width:16px;height:16px;cursor:pointer}
-    .flag-row span{font-size:.85rem;color:#64748b}
+/* study feedback */
+.study-feedback{display:none;margin-top:14px;padding:12px 16px;border-radius:8px;font-size:.9rem;line-height:1.5;max-width:680px}
+.study-feedback.correct{display:block;background:#dcfce7;color:#14532d;border-left:4px solid var(--green)}
+.study-feedback.incorrect{display:block;background:#fee2e2;color:#7f1d1d;border-left:4px solid var(--red)}
 
-    .q-actions{display:flex;justify-content:space-between;align-items:center;margin-top:32px;max-width:680px;flex-wrap:wrap;gap:12px}
-    .btn-nav{padding:10px 24px;border-radius:8px;border:2px solid #cbd5e1;background:white;font-size:.9rem;font-weight:600;cursor:pointer;color:#374151;transition:all .15s}
-    .btn-nav:hover:not(:disabled){border-color:#2563eb;color:#2563eb}
-    .btn-nav:disabled{opacity:.4;cursor:not-allowed}
-    .btn-submit-test{background:#dc2626;color:white;border:none;border-radius:8px;padding:12px 28px;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .2s}
-    .btn-submit-test:hover{background:#b91c1c}
+/* ── TEST BODY ── */
+.test-body{display:flex;flex:1}
+.nav-panel{background:var(--card);width:200px;flex-shrink:0;padding:14px;border-right:1px solid var(--border);overflow-y:auto}
+.nav-panel h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+.nav-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.nav-dot{width:32px;height:32px;border-radius:6px;border:2px solid var(--border);background:var(--nav-empty);font-size:.75rem;font-weight:700;color:var(--muted);transition:all .12s;display:flex;align-items:center;justify-content:center;border:2px solid var(--border)}
+.nav-dot:hover{border-color:var(--blue);color:var(--blue)}
+.nav-dot.current{border-color:var(--blue);background:var(--blue);color:#fff}
+.nav-dot.answered{border-color:var(--green);background:#dcfce7;color:var(--green)}
+.nav-dot.flagged{border-color:var(--yellow);background:#fef3c7;color:#92400e}
+.nav-dot.answered.flagged{border-color:var(--yellow);background:#fef3c7;color:#92400e}
+.nav-dot.study-correct{border-color:var(--green);background:#dcfce7;color:var(--green)}
+.nav-dot.study-wrong{border-color:var(--red);background:#fee2e2;color:var(--red)}
+.nav-legend{margin-top:12px;font-size:.72rem;color:var(--muted)}
+.nav-legend-item{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.answered-count{margin-top:12px;font-size:.78rem;color:var(--muted);text-align:center}
 
-    .answered-count{font-size:.85rem;color:#64748b;text-align:center}
+/* Question area */
+.question-area{flex:1;padding:28px 36px;overflow-y:auto}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.q-counter{font-size:.8rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.q-cat-badge{font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:600}
+.sign-img{display:block;margin:0 auto 18px;text-align:center}
+.q-text{font-size:1.05rem;font-weight:600;line-height:1.6;margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:9px;max-width:680px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border:2px solid var(--opt-border);border-radius:10px;cursor:pointer;transition:all .13s;background:var(--card)}
+.opt:hover:not(.locked){border-color:var(--blue);background:var(--opt-hover)}
+.opt.selected{border-color:var(--opt-sel-b);background:var(--opt-sel)}
+.opt.locked{cursor:default}
+.opt.study-correct-opt{border-color:var(--green);background:#dcfce7}
+.opt.study-wrong-opt{border-color:var(--red);background:#fee2e2}
+.opt-letter{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .13s}
+.opt.selected .opt-letter{border-color:var(--opt-sel-b);background:var(--opt-sel-b);color:#fff}
+.opt.study-correct-opt .opt-letter{border-color:var(--green);background:var(--green);color:#fff}
+.opt.study-wrong-opt .opt-letter{border-color:var(--red);background:var(--red);color:#fff}
+.opt-text{font-size:.92rem;line-height:1.45}
+.flag-row{display:flex;align-items:center;gap:7px;margin-top:16px;cursor:pointer;width:fit-content;user-select:none;font-size:.82rem;color:var(--muted)}
+.flag-row input{accent-color:var(--yellow);cursor:pointer}
+.q-actions{display:flex;justify-content:space-between;align-items:center;margin-top:28px;max-width:680px;flex-wrap:wrap;gap:10px}
+.btn-nav{padding:10px 22px;border-radius:8px;border:2px solid var(--border);background:var(--card);font-size:.88rem;font-weight:600;color:var(--text);transition:all .13s}
+.btn-nav:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.btn-nav:disabled{opacity:.35;cursor:not-allowed}
+.btn-submit-test{background:var(--red);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:.92rem;font-weight:700;transition:background .2s}
+.btn-submit-test:hover{background:#b91c1c}
 
-    /* ── RESULTS SCREEN ── */
-    #screen-results{min-height:100vh;padding:32px 24px;display:flex;flex-direction:column;align-items:center}
-    .results-header{width:100%;max-width:800px;background:#1a3a5c;color:white;border-radius:14px 14px 0 0;padding:28px 36px;text-align:center}
-    .results-header h1{font-size:1.6rem;margin-bottom:4px}
-    .results-header p{opacity:.75;font-size:.9rem}
-    .results-body{background:white;width:100%;max-width:800px;border-radius:0 0 14px 14px;padding:32px 36px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+/* ── RESULTS ── */
+#screen-results{padding:28px 16px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+.res-card{background:var(--card);border-radius:14px;max-width:800px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1);overflow:hidden}
+.res-header{background:var(--hdr);color:#fff;padding:24px 32px;text-align:center}
+.res-header h1{font-size:1.4rem}
+.res-header p{opacity:.75;font-size:.85rem;margin-top:3px}
+.res-body{padding:28px 32px}
+.pf-banner{border-radius:10px;padding:18px 24px;text-align:center;margin-bottom:24px}
+.pf-banner.pass{background:#dcfce7;border:2px solid var(--green)}
+.pf-banner.fail{background:#fee2e2;border:2px solid var(--red)}
+.pf-verdict{font-size:2rem;font-weight:900;letter-spacing:.08em}
+.pf-banner.pass .pf-verdict{color:var(--green)}
+.pf-banner.fail .pf-verdict{color:var(--red)}
+.pf-sub{font-size:.9rem;color:var(--text);margin-top:4px}
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.stat{background:var(--input-bg);border-radius:10px;padding:14px;text-align:center}
+.stat .num{font-size:1.7rem;font-weight:800}
+.stat .lbl{font-size:.72rem;color:var(--muted);margin-top:2px}
+.stat.g .num{color:var(--green)}.stat.r .num{color:var(--red)}.stat.b .num{color:var(--blue)}.stat.gr .num{color:var(--text)}
+.res-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.res-btn{flex:1;padding:12px;border-radius:8px;border:none;font-size:.9rem;font-weight:700;transition:all .2s;min-width:140px}
+.res-btn.primary{background:var(--hdr);color:#fff}.res-btn.primary:hover{background:var(--blue)}
+.res-btn.secondary{background:var(--input-bg);color:var(--text);border:2px solid var(--border)}.res-btn.secondary:hover{border-color:var(--blue);color:var(--blue)}
+.res-btn.orange{background:#f59e0b;color:#fff}.res-btn.orange:hover{background:#d97706}
+.review-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:12px;border-bottom:2px solid var(--border);padding-bottom:6px}
+.rev-item{border-radius:8px;padding:13px 16px;border-left:4px solid;margin-bottom:9px}
+.rev-item.c{background:#f0fdf4;border-left-color:var(--green)}
+.rev-item.w{background:#fef2f2;border-left-color:var(--red)}
+.rev-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.rev-badge{font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.rev-item.c .rev-badge{background:#dcfce7;color:var(--green)}
+.rev-item.w .rev-badge{background:#fee2e2;color:var(--red)}
+.rev-qn{font-size:.75rem;color:var(--muted)}
+.rev-q{font-size:.88rem;font-weight:600;margin-bottom:5px}
+.rev-your{font-size:.82rem;color:var(--red);margin-bottom:2px}
+.rev-correct{font-size:.82rem;color:var(--green);font-weight:600;margin-bottom:2px}
+.rev-exp{font-size:.8rem;color:var(--muted);font-style:italic;margin-top:5px;padding-top:5px;border-top:1px solid var(--border)}
 
-    .pass-fail-banner{border-radius:10px;padding:20px 28px;text-align:center;margin-bottom:28px}
-    .pass-fail-banner.pass{background:#dcfce7;border:2px solid #16a34a}
-    .pass-fail-banner.fail{background:#fee2e2;border:2px solid #dc2626}
-    .pass-fail-banner .verdict{font-size:2rem;font-weight:900;letter-spacing:.06em}
-    .pass-fail-banner.pass .verdict{color:#15803d}
-    .pass-fail-banner.fail .verdict{color:#dc2626}
-    .pass-fail-banner .sub{font-size:.95rem;margin-top:4px;color:#374151}
+/* ── DRILL SCREEN ── */
+#screen-drill{min-height:100vh;display:flex;flex-direction:column}
 
-    .score-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-    .stat-box{background:#f8fafc;border-radius:10px;padding:16px;text-align:center}
-    .stat-box .num{font-size:1.8rem;font-weight:800}
-    .stat-box .lbl{font-size:.75rem;color:#64748b;margin-top:2px}
-    .stat-box.green .num{color:#16a34a}
-    .stat-box.red .num{color:#dc2626}
-    .stat-box.blue .num{color:#2563eb}
-    .stat-box.gray .num{color:#374151}
+/* confetti */
+.conf-piece{position:fixed;pointer-events:none;z-index:9999;border-radius:2px}
 
-    .review-title{font-size:1rem;font-weight:700;color:#1a3a5c;margin-bottom:14px;border-bottom:2px solid #e2e8f0;padding-bottom:8px}
-    .review-list{display:flex;flex-direction:column;gap:10px}
-    .review-item{border-radius:8px;padding:14px 18px;border-left:4px solid}
-    .review-item.correct{background:#f0fdf4;border-left-color:#16a34a}
-    .review-item.incorrect{background:#fef2f2;border-left-color:#dc2626}
-    .review-item .ri-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-    .ri-badge{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:20px}
-    .review-item.correct .ri-badge{background:#dcfce7;color:#15803d}
-    .review-item.incorrect .ri-badge{background:#fee2e2;color:#dc2626}
-    .ri-qnum{font-size:.8rem;color:#64748b}
-    .ri-q{font-size:.9rem;font-weight:600;margin-bottom:6px;color:#1a2332}
-    .ri-your{font-size:.85rem;color:#dc2626}
-    .ri-correct{font-size:.85rem;color:#16a34a;font-weight:600}
+/* dark mode toggle */
+.dark-toggle{font-size:1rem}
 
-    .retake-btn{background:#1a3a5c;color:white;border:none;border-radius:8px;padding:13px 36px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:24px;width:100%;transition:background .2s}
-    .retake-btn:hover{background:#2563eb}
-
-    @media(max-width:680px){
-      .test-body{flex-direction:column}
-      .nav-panel{width:100%;border-right:none;border-bottom:1px solid #e2e8f0}
-      .question-area{padding:20px}
-      .score-stats{grid-template-columns:1fr 1fr}
-      .info-grid{grid-template-columns:1fr}
-      .start-card{padding:28px 20px}
-      .results-body{padding:20px}
-    }
-  </style>
+@media(max-width:640px){
+  .test-body{flex-direction:column}
+  .nav-panel{width:100%;border-right:none;border-bottom:1px solid var(--border)}
+  .question-area{padding:16px}
+  .score-grid{grid-template-columns:1fr 1fr}
+  .start-card,.history-card{padding:22px 16px}
+  .cat-grid{grid-template-columns:1fr}
+  .res-body{padding:20px}
+  .mode-row{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
-     START SCREEN
-═══════════════════════════════════════════ -->
+<!-- START -->
 <div id="screen-start">
   <div class="start-card">
-    <div class="az-seal">🌵</div>
-    <h1>Arizona MVD Knowledge Test</h1>
-    <p class="subtitle">Official-style driver license written test simulation</p>
-
-    <div class="info-grid">
-      <div class="info-item"><div class="label">Questions</div><div class="value">30</div></div>
-      <div class="info-item"><div class="label">To Pass</div><div class="value">24 correct (80%)</div></div>
-      <div class="info-item"><div class="label">Question Format</div><div class="value">Multiple choice</div></div>
-      <div class="info-item"><div class="label">Topics</div><div class="value">Signs, Rules, Safety, DUI</div></div>
+    <div class="start-top">
+      <div class="seal">🌵</div>
+      <h1>Arizona MVD Knowledge Test</h1>
+      <p>Official-style driver license written test simulation</p>
     </div>
 
-    <button class="btn-primary" onclick="startTest()">Begin Test</button>
-    <p class="disclaimer">Questions are randomly selected from a pool each session. No feedback is given until you submit.</p>
+    <div class="section-label">Select Mode</div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="btn-mode-test" onclick="setMode('test')">
+        <span class="mode-icon">📋</span>
+        <div class="mode-name">Test Mode</div>
+        <div class="mode-desc">30 questions, no feedback until you submit — just like the real MVD test</div>
+      </button>
+      <button class="mode-btn" id="btn-mode-study" onclick="setMode('study')">
+        <span class="mode-icon">📖</span>
+        <div class="mode-name">Study Mode</div>
+        <div class="mode-desc">Instant feedback + explanation on every question to help you learn</div>
+      </button>
+    </div>
+
+    <div class="section-label">Focus on Categories (uncheck to skip)</div>
+    <div class="cat-grid">
+      <label class="cat-check"><input type="checkbox" checked data-cat="rules"><div class="cat-dot" style="background:#2563eb"></div>Rules of the Road</label>
+      <label class="cat-check"><input type="checkbox" checked data-cat="signs"><div class="cat-dot" style="background:#f59e0b"></div>Signs &amp; Signals</label>
+      <label class="cat-check"><input type="checkbox" checked data-cat="safety"><div class="cat-dot" style="background:#16a34a"></div>Safe Driving</label>
+      <label class="cat-check"><input type="checkbox" checked data-cat="dui"><div class="cat-dot" style="background:#dc2626"></div>DUI &amp; Laws</label>
+      <label class="cat-check"><input type="checkbox" checked data-cat="bike"><div class="cat-dot" style="background:#7c3aed"></div>Bicycles &amp; Other</label>
+    </div>
+
+    <button class="start-btn" onclick="startTest()">Begin Test</button>
+    <p class="start-note">30 questions drawn randomly each session · Need 24/30 (80%) to pass</p>
+  </div>
+
+  <div class="history-card">
+    <h3>📊 Score History</h3>
+    <div id="history-content"><p class="no-history">No tests taken yet.</p></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     TEST SCREEN
-═══════════════════════════════════════════ -->
-<div id="screen-test" class="hidden">
+<!-- TEST -->
+<div id="screen-test" class="hidden" style="display:flex;flex-direction:column;min-height:100vh">
   <div class="test-header">
     <div class="test-header-left">
-      <h2>Arizona MVD Knowledge Test</h2>
-      <p>Answer all 30 questions, then submit for your score</p>
+      <h2 id="test-title">Arizona MVD Knowledge Test</h2>
+      <p id="test-subtitle">Answer all 30 questions, then submit for your score</p>
     </div>
-    <div class="timer" id="timer">00:00</div>
+    <div class="header-controls">
+      <span class="mode-badge" id="mode-badge">TEST</span>
+      <button class="hdr-btn dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+      <button class="hdr-btn" onclick="toggleLang()" id="lang-btn">ES</button>
+      <div class="timer" id="timer">00:00</div>
+    </div>
   </div>
   <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-
   <div class="test-body">
-    <!-- Navigation panel -->
     <div class="nav-panel">
       <h3>Questions</h3>
       <div class="nav-grid" id="nav-grid"></div>
-      <div class="nav-legend" style="margin-top:14px">
-        <div class="nav-legend-item"><div class="legend-dot" style="background:#dcfce7;border:2px solid #16a34a"></div> Answered</div>
-        <div class="nav-legend-item"><div class="legend-dot" style="background:#fef3c7;border:2px solid #f59e0b"></div> Flagged</div>
-        <div class="nav-legend-item"><div class="legend-dot" style="background:white;border:2px solid #cbd5e1"></div> Not answered</div>
+      <div class="nav-legend">
+        <div class="nav-legend-item"><div class="leg-dot" style="background:#dcfce7;border:1px solid #16a34a"></div><span id="leg-ans">Answered</span></div>
+        <div class="nav-legend-item"><div class="leg-dot" style="background:#fef3c7;border:1px solid #f59e0b"></div><span id="leg-flag">Flagged</span></div>
+        <div class="nav-legend-item"><div class="leg-dot" style="background:var(--nav-empty);border:1px solid var(--border)"></div><span id="leg-none">Not answered</span></div>
       </div>
-      <div style="margin-top:16px">
-        <div class="answered-count" id="answered-count">0 of 30 answered</div>
-      </div>
+      <div class="answered-count" id="answered-count">0 of 30 answered</div>
     </div>
-
-    <!-- Question area -->
     <div class="question-area">
-      <div class="q-counter" id="q-counter">Question 1 of 30</div>
+      <div class="q-meta">
+        <div class="q-counter" id="q-counter">Question 1 of 30</div>
+        <div class="q-cat-badge" id="q-cat-badge"></div>
+      </div>
+      <div id="sign-container" class="sign-img"></div>
       <div class="q-text" id="q-text"></div>
       <div class="options" id="options"></div>
-
+      <div class="study-feedback" id="study-feedback"></div>
       <label class="flag-row" id="flag-row">
         <input type="checkbox" id="flag-check" onchange="toggleFlag()"/>
-        <span>🚩 Flag for review</span>
+        <span id="flag-label">🚩 Flag for review</span>
       </label>
-
       <div class="q-actions">
-        <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Previous</button>
-        <button class="btn-submit-test" onclick="confirmSubmit()">Submit Test</button>
-        <button class="btn-nav" id="btn-next" onclick="navigate(1)">Next →</button>
+        <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← <span id="lbl-prev">Previous</span></button>
+        <button class="btn-submit-test" onclick="confirmSubmit()" id="btn-submit-test"><span id="lbl-submit">Submit Test</span></button>
+        <button class="btn-nav" id="btn-next" onclick="navigate(1)"><span id="lbl-next">Next</span> →</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     RESULTS SCREEN
-═══════════════════════════════════════════ -->
+<!-- RESULTS -->
 <div id="screen-results" class="hidden">
-  <div class="results-header">
-    <h1>Test Complete</h1>
-    <p>Arizona MVD Driver License Knowledge Test</p>
-  </div>
-  <div class="results-body">
-    <div class="pass-fail-banner" id="pf-banner">
-      <div class="verdict" id="pf-verdict"></div>
-      <div class="sub" id="pf-sub"></div>
+  <div class="res-card">
+    <div class="res-header"><h1 id="res-title">Test Complete</h1><p>Arizona MVD Driver License Knowledge Test</p></div>
+    <div class="res-body">
+      <div class="pf-banner" id="pf-banner"><div class="pf-verdict" id="pf-verdict"></div><div class="pf-sub" id="pf-sub"></div></div>
+      <div class="score-grid">
+        <div class="stat g"><div class="num" id="res-c">0</div><div class="lbl" id="lbl-correct">Correct</div></div>
+        <div class="stat r"><div class="num" id="res-w">0</div><div class="lbl" id="lbl-wrong">Incorrect</div></div>
+        <div class="stat b"><div class="num" id="res-p">0%</div><div class="lbl">Score</div></div>
+        <div class="stat gr"><div class="num" id="res-t">0:00</div><div class="lbl" id="lbl-time">Time</div></div>
+      </div>
+      <div class="res-actions">
+        <button class="res-btn primary" onclick="retake()">🔄 <span id="lbl-retake">New Test</span></button>
+        <button class="res-btn orange" id="btn-retry-wrong" onclick="drillWrong()">🎯 <span id="lbl-drill">Retry Wrong Answers</span></button>
+      </div>
+      <div class="review-title" id="lbl-review-title">Question Review</div>
+      <div id="review-list"></div>
     </div>
-    <div class="score-stats">
-      <div class="stat-box green"><div class="num" id="res-correct">0</div><div class="lbl">Correct</div></div>
-      <div class="stat-box red"><div class="num" id="res-wrong">0</div><div class="lbl">Incorrect</div></div>
-      <div class="stat-box blue"><div class="num" id="res-pct">0%</div><div class="lbl">Score</div></div>
-      <div class="stat-box gray"><div class="num" id="res-time">0:00</div><div class="lbl">Time</div></div>
-    </div>
-    <div class="review-title">Question Review</div>
-    <div class="review-list" id="review-list"></div>
-    <button class="retake-btn" onclick="retakeTest()">Take Another Test</button>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// QUESTION BANK  (90 questions, 30 drawn randomly each session)
-// ans = index of correct option in opts array
-// ═══════════════════════════════════════════
-const bank = [
-  // ── RULES OF THE ROAD ──
-  {q:"What is the speed limit when approaching a school crosswalk?",opts:["15 mph","20 mph","25 mph"],ans:0},
-  {q:"A school bus is stopped on a four-lane divided highway with the stop sign extended. You must:",opts:["Stop regardless of your direction of travel","Stop only if you are behind the bus on the same side of the highway","Slow down and proceed with caution"],ans:1},
-  {q:"At an uncontrolled intersection where two cars arrive at the same time, which car has the right-of-way?",opts:["The car approaching from the left","The car approaching from the right","The car going straight"],ans:1},
-  {q:"An emergency vehicle with lights and sirens is approaching. You should:",opts:["Drive immediately to the right and stop","Slow down and permit the vehicle to pass","Stay right but continue at the same speed"],ans:0},
-  {q:"A driver's hand signal with the arm extended straight out to the left means:",opts:["Right turn","Stopping or slowing down","Left turn"],ans:2},
-  {q:"A driver's hand signal with the arm bent upward at the elbow means:",opts:["Left turn","Stopping or slowing down","Right turn"],ans:2},
-  {q:"A driver's hand signal with the arm bent downward means:",opts:["Stopping or slowing down","Left turn","Right turn"],ans:0},
-  {q:"You must yield the right-of-way to pedestrians:",opts:["Only in a marked crosswalk","Only when crossing at a corner","In any crosswalk or intersection"],ans:2},
-  {q:"When driving on wet roads, you should:",opts:["Reduce your speed","Pump your brakes occasionally","Switch to low beam headlights"],ans:0},
-  {q:"When entering a road from an alley or driveway, you must:",opts:["Flash your high beams","Sound your horn","Stop before the sidewalk and yield to pedestrians"],ans:2},
-  {q:"When backing your vehicle, you should:",opts:["Check only the inside rearview mirror","Turn and look out the rear window","Turn and look out the driver's side window only"],ans:1},
-  {q:"When making a left turn at an intersection, you must yield to:",opts:["All oncoming vehicles going straight","Only vehicles in the nearest lane","No vehicles if the signal is green"],ans:0},
-  {q:"When parking uphill next to a curb, which way should you turn your wheels?",opts:["Right, toward the curb","Straight","Left, away from the curb toward traffic"],ans:2},
-  {q:"In a business or residential area, what is the maximum speed if no limit is posted?",opts:["30 mph","25 mph","35 mph"],ans:1},
-  {q:"Which of the following is permitted while driving?",opts:["Talking to passengers","Writing or reading text messages","Watching or recording video"],ans:0},
-  {q:"After passing a vehicle on a two-lane road, it is safe to return to your lane when:",opts:["You can see both the vehicle's headlights in your rearview mirror","The driver signals you over","You can see the driver in your side mirror"],ans:0},
-  {q:"It is illegal to follow a fire vehicle responding to an alarm within:",opts:["500 feet","200 feet","300 feet"],ans:0},
-  {q:"When a school bus is picking up or dropping off children, you must:",opts:["Stop, then proceed once the door closes","Stop until the bus is moving or the stop sign arm is retracted","Slow down and yield"],ans:1},
-  {q:"When parking downhill, which way should you turn your wheels?",opts:["Straight ahead","Left, away from the curb","Right, toward the curb or edge of road"],ans:2},
-  {q:"You must signal continuously before turning for at least:",opts:["500 feet","4 seconds","100 feet"],ans:2},
-  {q:"It is illegal to park within how many feet of a crosswalk?",opts:["20 feet","10 feet","15 feet"],ans:0},
-  {q:"It is illegal to park within how many feet of a fire hydrant?",opts:["15 feet","5 feet","10 feet"],ans:0},
-  {q:"When parking uphill on a road without a curb, which way should you turn your wheels?",opts:["Right, toward the edge of the road","Left, away from the edge","Straight ahead"],ans:0},
-  {q:"When approaching a T-intersection, the driver on the road that ends must:",opts:["Yield the right-of-way to cross traffic","Force their way into traffic","Assume they have the right-of-way"],ans:0},
-  {q:"When a pedestrian guided by a guide dog or carrying a white cane is crossing the street, you must:",opts:["Always yield the right-of-way","Tell them when it is safe to cross","Yield only if you are at a marked crosswalk"],ans:0},
-  {q:"You are in the right lane of a freeway during rush hour. Why should you avoid this lane?",opts:["To allow emergency vehicles to pass","To leave room for vehicles entering and exiting","Because it has the most accidents"],ans:1},
-  {q:"When entering a roundabout, you should slow down and:",opts:["Yield only to pedestrians","Yield only to vehicles already in the roundabout","Yield to both pedestrians and vehicles already in the roundabout"],ans:2},
-  {q:"If a vehicle is equipped with airbags, seat belts:",opts:["Should still always be worn","Do not need to be worn","Should be worn only in the rear seats"],ans:0},
-  {q:"If a traffic signal light is green but a police officer signals you to stop, you should:",opts:["Obey the police officer","Obey the traffic signal","Do what the vehicle in front of you does"],ans:0},
-  {q:"You may legally pass another vehicle when:",opts:["You are on a hill or curve","There is a solid yellow line next to your lane","There is a broken yellow line next to your lane"],ans:2},
-  {q:"Before entering an intersection, you should look to your:",opts:["Left, then right, then left again","Right only","Left only"],ans:0},
-  {q:"A pedestrian starts crossing after the Don't Walk signal flashes and is in the middle of the street when your light turns green. You should:",opts:["Proceed if you have the right-of-way","Proceed if the pedestrian is not in your lane","Wait until the pedestrian has safely crossed"],ans:2},
-  {q:"Adjust your rearview and side mirrors:",opts:["Before you start driving","Whenever you need to use them","Before you get into the car"],ans:0},
-  {q:"If there is no crosswalk and you see a pedestrian crossing your lane, you should:",opts:["Make sure the pedestrian sees you, then proceed","Cautiously drive around the pedestrian","Stop and let the pedestrian finish crossing"],ans:2},
-  {q:"Which of the following is true about handicap parking spaces?",opts:["They are only for drivers with an appropriate license plate or hanging tag","Anyone may use them if all other spaces are occupied","They may be used by anyone who is not feeling well"],ans:0},
-  {q:"If a road is slippery, you should maintain a following distance that is:",opts:["The same as normal","Farther from the car ahead than normal","Closer to the car ahead than normal"],ans:1},
+// ═══════════════ QUESTION BANK ═══════════════
+// cat: rules|signs|safety|dui|bike
+// ans: index of correct option
+// exp: explanation shown in study mode / results
+// es/esOpts: Spanish translation
+// sign: optional SVG HTML for sign questions
+const SIGNS = {
+  stop:`<svg viewBox="0 0 110 110" width="80" height="80"><polygon points="34,4 76,4 106,34 106,76 76,106 34,106 4,76 4,34" fill="#CC0000" stroke="white" stroke-width="4"/><text x="55" y="64" text-anchor="middle" fill="white" font-size="18" font-weight="bold" font-family="Arial">STOP</text></svg>`,
+  yield:`<svg viewBox="0 0 110 110" width="80" height="80"><polygon points="55,100 6,12 104,12" fill="white" stroke="#CC0000" stroke-width="7"/><text x="55" y="68" text-anchor="middle" fill="#CC0000" font-size="13" font-weight="bold" font-family="Arial">YIELD</text></svg>`,
+  warn:`<svg viewBox="0 0 110 110" width="80" height="80"><rect x="17" y="17" width="76" height="76" fill="#FFD700" stroke="#333" stroke-width="3" transform="rotate(45 55 55)"/><text x="55" y="52" text-anchor="middle" fill="#333" font-size="11" font-weight="bold" font-family="Arial">WARN</text><text x="55" y="66" text-anchor="middle" fill="#333" font-size="11" font-weight="bold" font-family="Arial">ING</text></svg>`,
+  rr:`<svg viewBox="0 0 110 110" width="80" height="80"><circle cx="55" cy="55" r="50" fill="#FFD700" stroke="#333" stroke-width="3"/><text x="55" y="44" text-anchor="middle" fill="#333" font-size="22" font-weight="bold" font-family="Arial">R</text><line x1="20" y1="55" x2="90" y2="55" stroke="#333" stroke-width="3"/><text x="55" y="74" text-anchor="middle" fill="#333" font-size="22" font-weight="bold" font-family="Arial">R</text></svg>`,
+  nopassing:`<svg viewBox="0 0 110 110" width="80" height="80"><polygon points="8,18 102,55 8,92" fill="#FFD700" stroke="#333" stroke-width="2"/><text x="52" y="60" text-anchor="middle" fill="#333" font-size="9" font-weight="bold" font-family="Arial">NO PASS</text></svg>`,
+  orange:`<svg viewBox="0 0 120 80" width="100" height="67"><rect x="4" y="4" width="112" height="72" rx="6" fill="#FF6600"/><text x="60" y="38" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial">WORK ZONE</text><text x="60" y="56" text-anchor="middle" fill="white" font-size="11" font-family="Arial">AHEAD</text></svg>`,
+  nopass_pen:`<svg viewBox="0 0 110 110" width="80" height="80"><polygon points="8,18 102,55 8,92" fill="#FFD700" stroke="#333" stroke-width="2"/></svg>`
+};
 
-  // ── SIGNS & SIGNALS ──
-  {q:"A downward-pointing triangular sign means:",opts:["Yield right-of-way","Speed and direction regulation","Railroad crossing warning"],ans:0},
-  {q:"A red painted curb means you may:",opts:["Stop only to load or unload","Not stop, stand, or park","Stop to pick up or drop off passengers only"],ans:1},
-  {q:"A green lighted arrow on a traffic signal means you may:",opts:["Proceed in that direction after a complete stop","Not proceed in that direction","Proceed in that direction without stopping"],ans:2},
-  {q:"A flashing red traffic light at an intersection means the same as:",opts:["A stop sign","The light is about to turn green","A solid red stop light"],ans:0},
-  {q:"A yellow center line on a road indicates:",opts:["Two-way traffic","A school zone","One-way traffic"],ans:0},
-  {q:"A broken yellow line alongside a solid yellow line means:",opts:["Passing is permitted if the solid line is on your side","Passing is permitted if the broken line is on your side","No passing is permitted in either direction"],ans:1},
-  {q:"A double solid yellow line in the middle of the road means:",opts:["You are permitted to pass if safe","No passing is permitted in either direction","There is a curve ahead"],ans:1},
-  {q:"A right turn on red is allowed:",opts:["Only where indicated by a sign","Except where prohibited by a sign","Only on a divided highway"],ans:1},
-  {q:"Unless prohibited by a sign, a left turn on red is permitted:",opts:["Except in school zones","From a two-way road onto a one-way road","From a one-way road onto a one-way road"],ans:2},
-  {q:"A flashing yellow light at an intersection means you must:",opts:["Stop and wait for the light to turn green","Stop, check for traffic, then proceed with caution","Slow down, check for traffic, then proceed with caution"],ans:2},
-  {q:"A flashing red traffic light at an intersection means you must:",opts:["Stop and wait for the light to turn green","Slow down and proceed with caution","Stop, check for traffic, then proceed with caution"],ans:2},
-  {q:"A traffic light has just turned yellow as you approach. You should:",opts:["Speed up to clear the intersection","Stop if you can do so safely","Proceed at the same speed"],ans:1},
-  {q:"A sign with an octagonal (8-sided) shape means:",opts:["Stop","Yield","Speed limit"],ans:0},
-  {q:"An orange-colored sign on the road means:",opts:["There is roadwork ahead","You must change lanes","There is a detour ahead"],ans:0},
-  {q:"A sign with a diamond shape is used for:",opts:["Warning drivers of hazards ahead","Indicating railroad crossings","Showing speed limits"],ans:0},
-  {q:"A circular (round) sign is used for:",opts:["Speed and direction regulation","Railroad crossing warnings","Stop signs"],ans:1},
-  {q:"A pennant-shaped sign on the left side of the road means:",opts:["Right turn permitted on red","No passing zone","Railroad crossing"],ans:1},
-  {q:"An inverted (upside-down) triangular sign means:",opts:["Railroad crossing","Yield right-of-way","Stop"],ans:1},
-  {q:"A broken white line between lanes of traffic means:",opts:["Traffic on both sides is moving in the same direction","No passing in either direction","Traffic is moving in opposite directions"],ans:0},
-  {q:"When a traffic control signal is not working, you should:",opts:["Come to a full stop and yield the right-of-way before entering","Proceed through if the intersection appears clear","Drive quickly through to get out of the way"],ans:0},
-  {q:"A solid yellow arrow on a traffic signal means:",opts:["Speed up to complete the turn before the signal changes","You do not need to signal to turn","Prepare to stop and yield to oncoming traffic"],ans:2},
-  {q:"If you come to a railroad crossing with lowered gates and flashing lights, you should:",opts:["Drive around the gates if you cannot see a train","Stop well behind the gates and wait for them to lift","Slow down and carefully drive around the gates"],ans:1},
-  {q:"Work zone barriers, cones, and signs are used to:",opts:["Slow down traffic for no reason","Inconvenience drivers","Keep traffic out of hazardous work areas"],ans:2},
+const bank=[
+// ── RULES ──
+{cat:'rules',q:"What is the speed limit when approaching a school crosswalk?",opts:["15 mph","20 mph","25 mph"],ans:0,exp:"Arizona law requires drivers to reduce speed to 15 mph when approaching a school crosswalk.",es:"¿Cuál es el límite de velocidad al aproximarse a un cruce escolar?",esOpts:["15 mph","20 mph","25 mph"]},
+{cat:'rules',q:"A school bus is stopped on a four-lane divided highway with its stop arm extended. You must:",opts:["Stop regardless of your direction","Stop only if you are behind the bus on the same side","Slow down and proceed with caution"],ans:1,exp:"On a divided highway, only vehicles traveling on the same side as the bus are required to stop.",es:"Un autobús escolar está detenido en una autopista de cuatro carriles con el brazo de parada extendido. Usted debe:",esOpts:["Detenerse sin importar su dirección","Detenerse solo si está detrás del autobús en el mismo lado","Reducir la velocidad y continuar con precaución"]},
+{cat:'rules',q:"At an uncontrolled intersection where two cars arrive at the same time, who has the right-of-way?",opts:["The car approaching from the left","The car approaching from the right","The car going straight"],ans:1,exp:"At an uncontrolled intersection, you must yield to the vehicle on your right.",es:"En una intersección sin señales de control donde llegan dos autos al mismo tiempo, ¿quién tiene prioridad de paso?",esOpts:["El auto que llega por la izquierda","El auto que llega por la derecha","El auto que va recto"]},
+{cat:'rules',q:"An emergency vehicle with lights and sirens is approaching. You should:",opts:["Drive immediately to the right and stop","Slow down and permit the vehicle to pass","Stay right but continue at the same speed"],ans:0,exp:"Arizona law requires you to immediately pull to the right edge of the road and stop until the emergency vehicle passes.",es:"Se aproxima un vehículo de emergencia con luces y sirenas. Usted debe:",esOpts:["Conducir inmediatamente hacia la derecha y detenerse","Reducir la velocidad y permitir que pase","Mantenerse a la derecha pero continuar a la misma velocidad"]},
+{cat:'rules',q:"A hand signal with the arm extended straight out to the left means:",opts:["Right turn","Stopping or slowing","Left turn"],ans:2,exp:"A left arm extended straight out signals a left turn.",es:"Una señal de mano con el brazo extendido hacia la izquierda significa:",esOpts:["Vuelta a la derecha","Deteniéndose o reduciendo velocidad","Vuelta a la izquierda"]},
+{cat:'rules',q:"A hand signal with the arm bent upward at the elbow means:",opts:["Left turn","Stopping or slowing","Right turn"],ans:2,exp:"An arm bent upward at the elbow signals a right turn.",es:"Una señal de mano con el brazo doblado hacia arriba significa:",esOpts:["Vuelta a la izquierda","Deteniéndose o reduciendo velocidad","Vuelta a la derecha"]},
+{cat:'rules',q:"A hand signal with the arm bent downward means:",opts:["Stopping or slowing","Left turn","Right turn"],ans:0,exp:"An arm pointed downward signals that the driver is stopping or slowing down.",es:"Una señal de mano con el brazo doblado hacia abajo significa:",esOpts:["Deteniéndose o reduciendo velocidad","Vuelta a la izquierda","Vuelta a la derecha"]},
+{cat:'rules',q:"You must yield the right-of-way to pedestrians:",opts:["Only in a marked crosswalk","Only at corners","In any crosswalk or intersection"],ans:2,exp:"Arizona law requires drivers to yield to pedestrians in any crosswalk or intersection, marked or unmarked.",es:"Usted debe ceder el paso a los peatones:",esOpts:["Solo en un paso de peatones señalizado","Solo en las esquinas","En cualquier cruce o intersección"]},
+{cat:'rules',q:"When driving on wet roads, you should:",opts:["Reduce your speed","Pump your brakes occasionally","Switch to low beam headlights"],ans:0,exp:"Wet roads reduce tire traction. Reducing speed gives you more time to react and stop safely.",es:"Al conducir en carreteras mojadas, usted debe:",esOpts:["Reducir la velocidad","Bombear los frenos ocasionalmente","Cambiar a luces bajas"]},
+{cat:'rules',q:"When entering a road from an alley or driveway, you must:",opts:["Flash your high beams","Sound your horn","Stop before the sidewalk and yield to pedestrians"],ans:2,exp:"You must stop before crossing the sidewalk, yield to pedestrians, then yield to traffic before entering the road.",es:"Al incorporarse a una calle desde un callejón o entrada privada, usted debe:",esOpts:["Encender las luces altas","Tocar el claxon","Detenerse antes de la acera y ceder el paso a los peatones"]},
+{cat:'rules',q:"When backing your vehicle, you should:",opts:["Check only the inside rearview mirror","Turn and look out the rear window","Turn and look out the driver's window only"],ans:1,exp:"Mirrors have blind spots. Turning to look directly out the rear window gives you the clearest view when reversing.",es:"Al dar marcha atrás, usted debe:",esOpts:["Mirar solo el espejo retrovisor interior","Girar y mirar por la ventana trasera","Girar y mirar solo por la ventana del conductor"]},
+{cat:'rules',q:"When making a left turn at an intersection, you must yield to:",opts:["All oncoming vehicles going straight","Only vehicles in the nearest lane","No vehicles if the signal is green"],ans:0,exp:"A left-turning vehicle must always yield to all oncoming traffic regardless of signal phase.",es:"Al girar a la izquierda en una intersección, usted debe ceder el paso a:",esOpts:["Todos los vehículos que vienen en sentido contrario recto","Solo los vehículos en el carril más cercano","Ningún vehículo si el semáforo está en verde"]},
+{cat:'rules',q:"When parking uphill next to a curb, which way should you turn your wheels?",opts:["Right, toward the curb","Straight","Left, away from the curb toward traffic"],ans:2,exp:"Uphill with a curb: turn wheels left (away from curb). If the car rolls forward, the curb stops it.",es:"Al estacionarse cuesta arriba junto a un bordillo, ¿hacia dónde debe girar las ruedas?",esOpts:["A la derecha, hacia el bordillo","Recto","A la izquierda, alejándose del bordillo hacia el tráfico"]},
+{cat:'rules',q:"In a business or residential area, the maximum speed if no limit is posted is:",opts:["30 mph","25 mph","35 mph"],ans:1,exp:"Arizona law sets a default speed limit of 25 mph in business and residential areas when no limit is posted.",es:"En una zona comercial o residencial, la velocidad máxima cuando no hay límite publicado es:",esOpts:["30 mph","25 mph","35 mph"]},
+{cat:'rules',q:"Which of the following is permitted while driving?",opts:["Talking to passengers","Writing or reading text messages","Watching or recording video"],ans:0,exp:"Arizona's distracted driving law bans handheld device use. Talking to passengers is legal.",es:"¿Cuál de las siguientes actividades está permitida mientras conduce?",esOpts:["Hablar con los pasajeros","Escribir o leer mensajes de texto","Ver o grabar videos"]},
+{cat:'rules',q:"After passing a vehicle, it is safe to return to your lane when:",opts:["You can see both headlights of the passed vehicle in your rearview mirror","The other driver signals you over","You can see the driver in your side mirror"],ans:0,exp:"Seeing both headlights in your mirror means you have enough clearance to safely merge back.",es:"Después de adelantar a un vehículo, es seguro regresar a su carril cuando:",esOpts:["Puede ver ambos faros del vehículo adelantado en su espejo retrovisor","El otro conductor le hace señas","Puede ver al conductor en su espejo lateral"]},
+{cat:'rules',q:"It is illegal to follow a fire vehicle responding to an alarm within:",opts:["500 feet","200 feet","300 feet"],ans:0,exp:"Arizona law prohibits following within 500 feet of any fire vehicle responding to an emergency.",es:"Es ilegal seguir a un camión de bomberos que responde a una alarma a menos de:",esOpts:["500 pies","200 pies","300 pies"]},
+{cat:'rules',q:"When a school bus is picking up or dropping off children, you must:",opts:["Stop, then proceed once the door closes","Stop until the bus moves or the stop arm is retracted","Slow down and yield"],ans:1,exp:"You must remain stopped until the bus moves forward or the driver retracts the stop arm — not just when the door closes.",es:"Cuando un autobús escolar recoge o deja niños, usted debe:",esOpts:["Detenerse y continuar una vez que se cierre la puerta","Detenerse hasta que el autobús se mueva o se retraiga el brazo de parada","Reducir la velocidad y ceder el paso"]},
+{cat:'rules',q:"When parking downhill, which way should you turn your wheels?",opts:["Straight ahead","Left, away from the curb","Right, toward the curb or edge of the road"],ans:2,exp:"Parking downhill: turn wheels right. If the car rolls forward it will turn into the curb or edge, not into traffic.",es:"Al estacionarse cuesta abajo, ¿hacia dónde debe girar las ruedas?",esOpts:["Recto","A la izquierda, alejándose del bordillo","A la derecha, hacia el bordillo o el borde de la carretera"]},
+{cat:'rules',q:"You must signal continuously before turning for at least:",opts:["500 feet","4 seconds","100 feet"],ans:2,exp:"Arizona law requires signaling at least 100 continuous feet before making a turn.",es:"Usted debe señalizar continuamente antes de girar al menos:",esOpts:["500 pies","4 segundos","100 pies"]},
+{cat:'rules',q:"It is illegal to park within how many feet of a crosswalk?",opts:["20 feet","10 feet","15 feet"],ans:0,exp:"Parking within 20 feet of a crosswalk is illegal because it blocks visibility for both drivers and pedestrians.",es:"¿A cuántos pies de un cruce peatonal es ilegal estacionarse?",esOpts:["20 pies","10 pies","15 pies"]},
+{cat:'rules',q:"It is illegal to park within how many feet of a fire hydrant?",opts:["15 feet","5 feet","10 feet"],ans:0,exp:"You must leave at least 15 feet clear on each side of a fire hydrant so fire crews can access it.",es:"¿A cuántos pies de una boca de incendios es ilegal estacionarse?",esOpts:["15 pies","5 pies","10 pies"]},
+{cat:'rules',q:"When parking uphill on a road without a curb, which way should you turn your wheels?",opts:["Right, toward the edge of the road","Left, away from the edge","Straight ahead"],ans:0,exp:"Uphill without a curb: turn wheels right (toward the shoulder). If the car rolls back, it moves off the road instead of into traffic.",es:"Al estacionarse cuesta arriba en una carretera sin bordillo, ¿hacia dónde debe girar las ruedas?",esOpts:["A la derecha, hacia el borde de la carretera","A la izquierda, alejándose del borde","Recto"]},
+{cat:'rules',q:"When approaching a T-intersection, the driver on the road that ends must:",opts:["Yield the right-of-way to cross traffic","Force their way into traffic","Assume they have right-of-way"],ans:0,exp:"At a T-intersection, the driver whose road ends must yield to all cross traffic on the through road.",es:"Al aproximarse a una intersección en T, el conductor de la calle que termina debe:",esOpts:["Ceder el paso al tráfico transversal","Incorporarse al tráfico","Asumir que tiene prioridad de paso"]},
+{cat:'rules',q:"When a pedestrian guided by a guide dog or carrying a white cane is crossing, you must:",opts:["Always yield the right-of-way","Tell them when it is safe to cross","Yield only at a marked crosswalk"],ans:0,exp:"Arizona law requires all drivers to always yield to blind pedestrians identified by a guide dog or white cane.",es:"Cuando un peatón con perro guía o bastón blanco cruza la calle, usted debe:",esOpts:["Siempre ceder el paso","Decirles cuándo es seguro cruzar","Ceder el paso solo en un cruce señalizado"]},
+{cat:'rules',q:"You should avoid the right lane of a freeway during rush hour to:",opts:["Allow emergency vehicles to pass","Leave room for vehicles entering and exiting","Prevent accidents in that lane"],ans:1,exp:"The right lane is constantly interrupted by on-ramps and off-ramps. Staying out of it during rush hour improves traffic flow.",es:"Debe evitar el carril derecho de la autopista durante horas pico para:",esOpts:["Permitir el paso de vehículos de emergencia","Dejar espacio para los vehículos que entran y salen","Prevenir accidentes en ese carril"]},
+{cat:'rules',q:"When entering a roundabout, you should slow down and:",opts:["Yield only to pedestrians","Yield only to vehicles already inside","Yield to both pedestrians and vehicles already inside"],ans:2,exp:"Always slow on entry and yield to both pedestrians in crosswalks and all traffic already circulating in the roundabout.",es:"Al entrar a una rotonda, debe reducir la velocidad y:",esOpts:["Ceder el paso solo a los peatones","Ceder el paso solo a los vehículos que ya están dentro","Ceder el paso tanto a peatones como a vehículos que ya están dentro"]},
+{cat:'rules',q:"If a vehicle is equipped with airbags, seat belts:",opts:["Should still always be worn","Do not need to be worn","Should only be worn in rear seats"],ans:0,exp:"Airbags are designed to work with seat belts, not replace them. Wearing a belt significantly reduces injury risk even with airbags.",es:"Si un vehículo está equipado con bolsas de aire, los cinturones de seguridad:",esOpts:["Siempre deben usarse","No necesitan usarse","Solo deben usarse en los asientos traseros"]},
+{cat:'rules',q:"If a traffic signal is green but a police officer signals you to stop, you should:",opts:["Obey the police officer","Obey the traffic signal","Follow the car in front of you"],ans:0,exp:"A traffic officer's signal always overrides any traffic control device. Always obey the officer.",es:"Si el semáforo está en verde pero un oficial de policía le indica que se detenga, usted debe:",esOpts:["Obedecer al oficial de policía","Obedecer el semáforo","Seguir al auto de enfrente"]},
+{cat:'rules',q:"You may legally pass another vehicle when:",opts:["You are on a hill or curve","There is a solid yellow line next to your lane","There is a broken yellow line next to your lane"],ans:2,exp:"A broken yellow center line means passing is permitted when safe. A solid line means no passing.",es:"Puede adelantar legalmente a otro vehículo cuando:",esOpts:["Está en una colina o curva","Hay una línea amarilla continua junto a su carril","Hay una línea amarilla discontinua junto a su carril"]},
+{cat:'rules',q:"Before entering an intersection, you should look:",opts:["Left, then right, then left again","Right only","Left only"],ans:0,exp:"Looking left-right-left checks for approaching traffic from both directions, with a second left look since left-side traffic reaches you first.",es:"Antes de entrar a una intersección, debe mirar:",esOpts:["Izquierda, luego derecha, luego izquierda de nuevo","Solo a la derecha","Solo a la izquierda"]},
+{cat:'rules',q:"A pedestrian is in the middle of the street when your light turns green. You should:",opts:["Proceed — you have the right-of-way","Proceed if the pedestrian is not in your lane","Wait until the pedestrian has fully crossed"],ans:2,exp:"Pedestrians in the intersection always have the right-of-way. Wait until they have safely completed crossing.",es:"Un peatón está en medio de la calle cuando su semáforo cambia a verde. Usted debe:",esOpts:["Continuar — usted tiene la prioridad","Continuar si el peatón no está en su carril","Esperar hasta que el peatón cruce completamente"]},
+{cat:'rules',q:"If there is no crosswalk and you see a pedestrian crossing your lane, you should:",opts:["Ensure the pedestrian sees you, then proceed","Carefully drive around the pedestrian","Stop and let the pedestrian finish crossing"],ans:2,exp:"Pedestrians have the right-of-way even where there is no marked crosswalk.",es:"Si no hay cruce peatonal y ve a un peatón cruzando su carril, debe:",esOpts:["Asegurarse de que el peatón le vea y continuar","Conducir cuidadosamente alrededor del peatón","Detenerse y dejar que el peatón cruce"]},
+{cat:'rules',q:"Handicap parking spaces may only be used by:",opts:["Drivers with an appropriate license plate or hanging tag","Anyone if all other spaces are full","Anyone who is not feeling well"],ans:0,exp:"Only vehicles displaying a valid disability license plate or placard may park in accessible spaces.",es:"Los espacios de estacionamiento para discapacitados solo pueden usarlos:",esOpts:["Conductores con placa o colgante apropiado","Cualquiera si todos los demás espacios están llenos","Cualquiera que no se sienta bien"]},
+{cat:'rules',q:"If a road is slippery, your following distance should be:",opts:["The same as normal","Farther than normal","Closer than normal"],ans:1,exp:"Slippery surfaces dramatically increase stopping distance, so you need more space between you and the car ahead.",es:"Si la carretera es resbaladiza, su distancia de seguimiento debe ser:",esOpts:["La misma que de costumbre","Mayor de lo normal","Menor de lo normal"]},
 
-  // ── SAFE DRIVING ──
-  {q:"When following another vehicle at night, you should lower your high beams when within:",opts:["300 feet","100 feet","200 feet"],ans:0},
-  {q:"You must switch to low beam headlights when oncoming traffic is within:",opts:["750 feet","300 feet","500 feet"],ans:2},
-  {q:"If your vehicle begins to hydroplane, you should:",opts:["Release the accelerator and steer straight","Pull off the road immediately","Pump the brakes rapidly"],ans:0},
-  {q:"When merging onto a freeway from an entrance ramp, you should:",opts:["Drive at the posted freeway speed limit","Match the speed of traffic in the right lane","Drive about 10 mph slower than the speed limit"],ans:1},
-  {q:"The best way to bring your vehicle out of a skid is to:",opts:["Turn the wheel in the direction the vehicle is skidding","Turn the wheel away from the direction of the skid","Pump the brakes rapidly"],ans:0},
-  {q:"The minimum safe following distance from the vehicle ahead should be at least:",opts:["5 seconds","3 seconds","2 seconds"],ans:1},
-  {q:"If you come to an intersection where your view to the side is blocked, you should:",opts:["Stop, then inch forward slowly until you can see clearly in both directions","Maintain your speed and look both ways","Slow down and look both ways without stopping"],ans:0},
-  {q:"If you are driving in fog, you should use:",opts:["Low beam headlights","Parking lights only","High beam headlights"],ans:0},
-  {q:"If you come upon a severe dust storm while driving, you should:",opts:["Maintain your speed and avoid changing lanes","Turn on your headlights but keep driving","Reduce speed and pull completely off the road"],ans:2},
-  {q:"If you have a tire blowout, you should:",opts:["Pump the brakes rapidly and pull off the road","Do not brake hard — slow down gradually and pull safely off the road","Turn the wheel in the direction of the skid"],ans:1},
-  {q:"Night driving presents unique problems because:",opts:["The speed limit is increased at night","There are fewer cars on the road","Distance and vehicle speed are difficult to judge in the dark"],ans:2},
-  {q:"When changing lanes, after checking your mirrors you should:",opts:["Slow down by at least one-third your speed","Check the inside rearview mirror again","Turn your head and look over your shoulder to check your blind spot"],ans:2},
-  {q:"To keep aware of the position of traffic behind you, it is best to:",opts:["Turn your head and look out the rear window frequently","Check your rearview mirror often","Create a large space cushion around your vehicle"],ans:1},
-  {q:"When being passed by another vehicle, you should:",opts:["Brake hard to create more space","Maintain a constant speed","Speed up to match the passing vehicle"],ans:1},
-  {q:"To avoid aggressive driving habits, you should:",opts:["Relax and concentrate on reaching your destination safely","Drive above the posted speed limit to keep up with traffic","Tailgate the driver in front of you"],ans:0},
-  {q:"You should leave enough space between you and the vehicle ahead in order to:",opts:["Stay out of the other driver's blind spot","Allow for a sudden stop","So the other driver can see both your headlights in the rearview mirror"],ans:1},
-  {q:"Before starting your vehicle, you should always:",opts:["Adjust your rearview and side mirrors","Buckle your safety belt and ensure all passengers are buckled","Both of the above"],ans:2},
-  {q:"If a truck or bus is making a right turn where you also need to turn right, you should:",opts:["Turn before the truck or bus gets to the turn","Wait until the truck or bus completes its turn","Squeeze between the truck and the curb"],ans:1},
-  {q:"Under Arizona's Move Over law, when you see a vehicle pulled to the side of the road with flashing lights, you must:",opts:["Only move over for police cars and ambulances","Move over for emergency vehicles and tow trucks only","Move over or slow down for all vehicles with flashing lights, including maintenance vehicles"],ans:2},
-  {q:"If you drive into a flooded area that is barricaded and require emergency rescue, you may be:",opts:["Given a warning with no financial penalties","Held liable for the costs of any emergency response","Issued an automatic 30-day vehicle impoundment"],ans:1},
+// ── SIGNS ──
+{cat:'signs',sign:'yield',q:"A downward-pointing triangular sign means:",opts:["Yield right-of-way","Speed and direction regulation","Railroad crossing"],ans:0,exp:"An inverted red triangle is the internationally recognized yield sign — slow down and give way to other traffic.",es:"Una señal triangular apuntando hacia abajo significa:",esOpts:["Ceder el derecho de paso","Regulación de velocidad y dirección","Cruce ferroviario"]},
+{cat:'signs',q:"A red painted curb means you may:",opts:["Stop only to load or unload","Not stop, stand, or park","Stop to pick up or drop off passengers"],ans:1,exp:"Red curbs prohibit all stopping, standing, and parking at any time.",es:"Un bordillo pintado de rojo significa que usted puede:",esOpts:["Detenerse solo para cargar o descargar","No detenerse, pararse ni estacionarse","Detenerse para recoger o dejar pasajeros"]},
+{cat:'signs',q:"A green lighted arrow on a traffic signal means you may:",opts:["Proceed in that direction after a full stop","Not proceed in that direction","Proceed in that direction without stopping"],ans:2,exp:"A green arrow is a protected signal — you may proceed in the arrow's direction without stopping.",es:"Una flecha verde en el semáforo significa que usted puede:",esOpts:["Continuar en esa dirección después de una parada completa","No continuar en esa dirección","Continuar en esa dirección sin detenerse"]},
+{cat:'signs',sign:'stop',q:"A sign with an octagonal (8-sided) shape means:",opts:["Stop","Yield","Speed limit"],ans:0,exp:"The octagon is used exclusively for the Stop sign in the United States.",es:"Una señal de forma octagonal (8 lados) significa:",esOpts:["Alto","Ceder el paso","Límite de velocidad"]},
+{cat:'signs',sign:'orange',q:"An orange-colored sign on the road means:",opts:["There is roadwork or a work zone ahead","You must change lanes","There is a detour"],ans:0,exp:"Orange signs are used exclusively in temporary work zones to warn drivers of construction and maintenance activity.",es:"Una señal de color naranja en la carretera significa:",esOpts:["Hay obras o una zona de trabajo adelante","Debe cambiar de carril","Hay una desviación"]},
+{cat:'signs',sign:'warn',q:"A diamond-shaped sign is used for:",opts:["Warning drivers of hazards ahead","Indicating railroad crossings","Showing speed limits"],ans:0,exp:"Yellow diamond signs warn drivers of changing road conditions or hazards ahead, such as curves, merges, or obstacles.",es:"Una señal de forma de diamante se usa para:",esOpts:["Advertir a los conductores de peligros adelante","Indicar cruces ferroviarios","Mostrar límites de velocidad"]},
+{cat:'signs',sign:'rr',q:"A circular (round) sign is used for:",opts:["Speed and direction regulation","Railroad crossing warnings","Stop signs"],ans:1,exp:"The round yellow sign with an 'RR' or crossbuck is used exclusively to warn of railroad crossings.",es:"Una señal de forma circular (redonda) se usa para:",esOpts:["Regulación de velocidad y dirección","Advertencias de cruces ferroviarios","Señales de alto"]},
+{cat:'signs',sign:'nopassing',q:"A pennant-shaped sign on the left side of the road means:",opts:["Right turn permitted on red","No passing zone","Railroad crossing"],ans:1,exp:"The yellow pennant (triangle pointing right) marks the beginning of a no-passing zone.",es:"Una señal en forma de banderín en el lado izquierdo de la carretera significa:",esOpts:["Vuelta permitida en rojo","Zona de no adelantamiento","Cruce ferroviario"]},
+{cat:'signs',sign:'yield',q:"An inverted (upside-down) triangular sign means:",opts:["Railroad crossing","Yield right-of-way","Stop"],ans:1,exp:"The inverted triangle is the yield sign — it tells you to slow down and give way to other traffic.",es:"Una señal triangular invertida (al revés) significa:",esOpts:["Cruce ferroviario","Ceder el derecho de paso","Alto"]},
+{cat:'signs',q:"A flashing red traffic light at an intersection means the same as:",opts:["A Stop sign","The light is about to turn green","A solid red Stop light"],ans:0,exp:"Treat a flashing red light exactly like a stop sign — come to a complete stop, then proceed when safe.",es:"Un semáforo rojo intermitente en una intersección equivale a:",esOpts:["Una señal de alto","El semáforo está a punto de ponerse verde","Un semáforo rojo fijo"]},
+{cat:'signs',q:"A yellow center line on a road indicates:",opts:["Two-way traffic","A school zone","One-way traffic"],ans:0,exp:"Yellow lines separate traffic flowing in opposite directions, indicating two-way traffic.",es:"Una línea central amarilla en una carretera indica:",esOpts:["Tráfico en dos sentidos","Una zona escolar","Tráfico en un solo sentido"]},
+{cat:'signs',q:"A broken yellow line alongside a solid yellow line means:",opts:["Passing is permitted if the solid line is on your side","Passing is permitted if the broken line is on your side","No passing is permitted in either direction"],ans:1,exp:"The broken line indicates your side — you may pass when safe. Drivers on the solid-line side may not pass.",es:"Una línea amarilla discontinua junto a una línea amarilla continua significa:",esOpts:["Puede adelantar si la línea continua está de su lado","Puede adelantar si la línea discontinua está de su lado","No se puede adelantar en ninguna dirección"]},
+{cat:'signs',q:"A double solid yellow line means:",opts:["Passing is permitted if safe","No passing in either direction","There is a curve ahead"],ans:1,exp:"Double solid yellow lines mean absolutely no passing is allowed in either direction.",es:"Una doble línea amarilla continua significa:",esOpts:["Se puede adelantar si es seguro","No se puede adelantar en ninguna dirección","Hay una curva adelante"]},
+{cat:'signs',q:"A right turn on red is allowed:",opts:["Only where a sign permits it","Except where a sign prohibits it","Only on a divided highway"],ans:1,exp:"In Arizona, right turns on red are permitted after a full stop unless a sign specifically prohibits it.",es:"Girar a la derecha en luz roja está permitido:",esOpts:["Solo donde una señal lo permita","Excepto donde una señal lo prohíba","Solo en una carretera dividida"]},
+{cat:'signs',q:"Unless prohibited by a sign, a left turn on red is permitted:",opts:["Except in school zones","From a two-way road onto a one-way road","From a one-way road onto a one-way road"],ans:2,exp:"A left-on-red is only legal when turning from a one-way street onto another one-way street, after stopping.",es:"A menos que lo prohíba una señal, girar a la izquierda en rojo está permitido:",esOpts:["Excepto en zonas escolares","Desde una vía de doble sentido hacia una vía de un solo sentido","Desde una vía de un solo sentido hacia otra vía de un solo sentido"]},
+{cat:'signs',q:"A flashing yellow light at an intersection means you must:",opts:["Stop and wait for green","Stop, check traffic, then proceed","Slow down, check traffic, then proceed with caution"],ans:2,exp:"A flashing yellow is a caution signal — slow down and check for cross traffic before proceeding.",es:"Una luz amarilla intermitente en una intersección significa que debe:",esOpts:["Detenerse y esperar el verde","Detenerse, verificar el tráfico y continuar","Reducir la velocidad, verificar el tráfico y continuar con precaución"]},
+{cat:'signs',q:"A flashing red traffic light means you must:",opts:["Stop and wait for green","Slow down and proceed with caution","Stop, check traffic, then proceed with caution"],ans:2,exp:"A flashing red = stop sign. Come to a complete stop, check all directions, then proceed when safe.",es:"Una luz roja intermitente significa que debe:",esOpts:["Detenerse y esperar el verde","Reducir la velocidad y continuar con precaución","Detenerse, verificar el tráfico y continuar con precaución"]},
+{cat:'signs',q:"A traffic light turns yellow as you approach. You should:",opts:["Speed up to clear the intersection","Stop if you can do so safely","Proceed at the same speed"],ans:1,exp:"Yellow means the signal is about to turn red. Stop if it is safe to do so — only proceed if stopping would be unsafe.",es:"El semáforo cambia a amarillo cuando se aproxima. Usted debe:",esOpts:["Acelerar para cruzar la intersección","Detenerse si puede hacerlo con seguridad","Continuar a la misma velocidad"]},
+{cat:'signs',q:"A broken white line between lanes means:",opts:["Traffic on both sides moving in the same direction","No passing in either direction","Traffic moving in opposite directions"],ans:0,exp:"Broken white lines separate lanes of traffic traveling in the same direction.",es:"Una línea blanca discontinua entre carriles significa:",esOpts:["El tráfico en ambos lados se mueve en la misma dirección","No se puede adelantar en ninguna dirección","Tráfico que se mueve en direcciones opuestas"]},
+{cat:'signs',q:"When a traffic control signal is not working, you should:",opts:["Come to a full stop and yield before entering","Proceed through if the intersection appears clear","Drive quickly through to get out of the way"],ans:0,exp:"A non-functioning signal is treated like a four-way stop — come to a full stop and yield before proceeding.",es:"Cuando una señal de tráfico no funciona, usted debe:",esOpts:["Hacer una parada completa y ceder el paso antes de entrar","Continuar si la intersección parece despejada","Conducir rápidamente para salir del camino"]},
+{cat:'signs',q:"A solid yellow arrow on a traffic signal means:",opts:["Speed up to complete the turn","No need to signal before turning","Prepare to stop and yield to oncoming traffic"],ans:2,exp:"A solid yellow arrow means the protected turning phase is ending — prepare to stop and yield.",es:"Una flecha amarilla continua en el semáforo significa:",esOpts:["Acelerar para completar el giro","No hay necesidad de señalizar antes de girar","Prepararse para detenerse y ceder el paso al tráfico que se aproxima"]},
+{cat:'signs',q:"At a railroad crossing with lowered gates and flashing lights, you should:",opts:["Drive around the gates if no train is visible","Stop well behind the gates and wait for them to lift","Slow down and carefully drive around"],ans:1,exp:"Never drive around lowered gates. Stop and wait until the gates fully lift and the warning lights stop.",es:"En un cruce ferroviario con barreras bajas y luces intermitentes, debe:",esOpts:["Rodear las barreras si no hay tren visible","Detenerse bien detrás de las barreras y esperar que se levanten","Reducir la velocidad y rodear cuidadosamente"]},
+{cat:'signs',q:"Work zone barriers, cones, and signs are used to:",opts:["Slow down traffic unnecessarily","Inconvenience drivers","Keep traffic out of hazardous work areas"],ans:2,exp:"Work zone devices are legally required safety measures to protect both workers and drivers.",es:"Las barreras, conos y señales de zona de obras se usan para:",esOpts:["Reducir el tráfico innecesariamente","Incomodar a los conductores","Mantener el tráfico fuera de áreas de trabajo peligrosas"]},
 
-  // ── DUI & LEGAL ──
-  {q:"You are considered to be driving under the influence if your blood alcohol concentration (BAC) is:",opts:["0.08% or above (0.04% if operating a commercial vehicle)","0.80% or above","0.10% or above"],ans:0},
-  {q:"You are driving under the extreme influence if your BAC is:",opts:["0.18% or above","0.28% or above","0.15% or above"],ans:2},
-  {q:"If you are under age 21, your license may be suspended if your BAC is:",opts:["0.10% or above","0.05% or above","Any detectable amount"],ans:2},
-  {q:"Only one thing can reduce blood alcohol content (BAC) in your body:",opts:["Drinking coffee or caffeine","Eating fatty foods","Time"],ans:2},
-  {q:"Which driving skills are affected by the use of alcohol and/or drugs?",opts:["Alertness only","Coordination only","Both alertness and coordination"],ans:2},
-  {q:"You are required by Arizona law to notify the MVD of a change of address within:",opts:["10 days","30 days","6 months"],ans:0},
-  {q:"The Arizona Distracted Driver law prohibits:",opts:["Holding or supporting a wireless device while driving","Having another person riding in your car","Chewing gum while driving"],ans:0},
-  {q:"Under the Arizona Graduated Driver License (Class G), new drivers cannot drive unsupervised between:",opts:["10:00 p.m. and 5:00 a.m.","11:00 p.m. and 6:00 a.m.","Midnight and 5:00 a.m."],ans:2},
+// ── SAFETY ──
+{cat:'safety',q:"When following another vehicle at night, lower your high beams when within:",opts:["300 feet","100 feet","200 feet"],ans:0,exp:"High beams can blind the driver ahead. Arizona requires dimming them within 300 feet when following.",es:"Al seguir a otro vehículo de noche, baje las luces altas cuando esté a menos de:",esOpts:["300 pies","100 pies","200 pies"]},
+{cat:'safety',q:"You must switch to low beams when oncoming traffic is within:",opts:["750 feet","300 feet","500 feet"],ans:2,exp:"Switch to low beams 500 feet before meeting oncoming vehicles to avoid blinding them.",es:"Debe cambiar a luces bajas cuando el tráfico que viene en sentido contrario esté a menos de:",esOpts:["750 pies","300 pies","500 pies"]},
+{cat:'safety',q:"If your vehicle begins to hydroplane, you should:",opts:["Release the accelerator and steer straight","Pull off the road immediately","Pump the brakes rapidly"],ans:0,exp:"Lifting off the accelerator gradually reduces speed and allows the tires to regain contact with the road.",es:"Si su vehículo comienza a aquaplanar, debe:",esOpts:["Soltar el acelerador y mantener el volante recto","Salirse de la carretera inmediatamente","Bombear los frenos rápidamente"]},
+{cat:'safety',q:"When merging onto a freeway, you should:",opts:["Drive at the posted freeway speed limit","Match the speed of traffic in the right lane","Drive about 10 mph below the speed limit"],ans:1,exp:"Matching freeway traffic speed allows you to merge safely without disrupting the flow of traffic.",es:"Al incorporarse a una autopista, debe:",esOpts:["Conducir al límite de velocidad de la autopista","Igualar la velocidad del tráfico en el carril derecho","Conducir unas 10 mph por debajo del límite de velocidad"]},
+{cat:'safety',q:"The best way to bring your vehicle out of a skid is to:",opts:["Turn the wheel in the direction the car is skidding","Turn the wheel away from the direction of the skid","Pump the brakes hard"],ans:0,exp:"Steering into the skid (the direction the rear is sliding) helps realign the front and rear of the vehicle.",es:"La mejor manera de salir de un derrape es:",esOpts:["Girar el volante en la dirección del derrape","Girar el volante en dirección contraria al derrape","Bombear los frenos con fuerza"]},
+{cat:'safety',q:"The minimum safe following distance from the vehicle ahead should be:",opts:["5 seconds","3 seconds","2 seconds"],ans:1,exp:"The 3-second rule gives you enough time and distance to stop safely under normal conditions.",es:"La distancia mínima de seguimiento segura del vehículo de adelante debe ser:",esOpts:["5 segundos","3 segundos","2 segundos"]},
+{cat:'safety',q:"If your view to the side at an intersection is blocked, you should:",opts:["Stop, then inch forward until you can see clearly in both directions","Maintain speed and look both ways","Slow down and look both ways without stopping"],ans:0,exp:"Creeping forward after stopping at the line lets you see cross traffic while controlling your speed.",es:"Si su visibilidad lateral en una intersección está bloqueada, debe:",esOpts:["Detenerse, luego avanzar poco a poco hasta ver claramente en ambas direcciones","Mantener la velocidad y mirar en ambas direcciones","Reducir la velocidad y mirar en ambas direcciones sin detenerse"]},
+{cat:'safety',q:"When driving in fog, you should use:",opts:["Low beam headlights","Parking lights only","High beam headlights"],ans:0,exp:"Low beams aim downward and reduce glare. High beams reflect off fog and actually reduce visibility.",es:"Al conducir con niebla, debe usar:",esOpts:["Luces bajas","Solo las luces de estacionamiento","Luces altas"]},
+{cat:'safety',q:"If you come upon a severe dust storm while driving, you should:",opts:["Maintain speed and avoid changing lanes","Turn on your headlights but keep driving","Reduce speed and pull completely off the road"],ans:2,exp:"Pull completely off the paved road, turn off lights (to avoid rear-end collisions), keep your foot off the brake, and stay buckled.",es:"Si se encuentra con una tormenta de polvo severa mientras conduce, debe:",esOpts:["Mantener la velocidad y evitar cambiar de carril","Encender los faros pero seguir conduciendo","Reducir la velocidad y salirse completamente de la carretera"]},
+{cat:'safety',q:"If you have a tire blowout, you should:",opts:["Pump the brakes rapidly and pull off","Do not brake hard — slow down gradually and pull safely off the road","Turn the wheel in the direction of the skid"],ans:1,exp:"Hard braking after a blowout can cause loss of control. Ease off the accelerator and steer firmly to a stop.",es:"Si tiene un reventón de llanta, debe:",esOpts:["Bombear los frenos rápidamente y salirse de la carretera","No frenar fuerte: reducir la velocidad gradualmente y salirse con seguridad","Girar el volante en la dirección del derrape"]},
+{cat:'safety',q:"Night driving is more difficult because:",opts:["The speed limit is increased at night","There are fewer cars on the road","Distance and speed are harder to judge in the dark"],ans:2,exp:"Reduced visibility at night makes it harder to accurately judge speed and distance of other vehicles.",es:"Conducir de noche es más difícil porque:",esOpts:["El límite de velocidad aumenta de noche","Hay menos autos en la carretera","La distancia y la velocidad son más difíciles de juzgar en la oscuridad"]},
+{cat:'safety',q:"When changing lanes, after checking mirrors you should:",opts:["Slow down by at least one-third","Check the inside rearview mirror again","Turn your head to look over your shoulder for blind spots"],ans:2,exp:"Mirrors don't cover all blind spots. A quick head-check before changing lanes is essential to see nearby vehicles.",es:"Al cambiar de carril, después de verificar los espejos debe:",esOpts:["Reducir la velocidad al menos un tercio","Volver a mirar el espejo retrovisor interior","Girar la cabeza para mirar por encima del hombro y verificar los puntos ciegos"]},
+{cat:'safety',q:"To keep track of traffic behind you, it is best to:",opts:["Turn your head and look out the rear window frequently","Check your rearview mirror every 5–8 seconds","Create a large space cushion around your car"],ans:1,exp:"Checking your rearview mirror every 5–8 seconds keeps you aware of approaching traffic without taking eyes off the road ahead.",es:"Para mantenerse al tanto del tráfico detrás de usted, lo mejor es:",esOpts:["Girar la cabeza y mirar por la ventana trasera frecuentemente","Revisar el espejo retrovisor cada 5 a 8 segundos","Crear un gran espacio alrededor de su auto"]},
+{cat:'safety',q:"When being passed by another vehicle, you should:",opts:["Brake hard to create more space","Maintain a constant speed","Speed up to match the passing vehicle"],ans:1,exp:"Maintaining your speed is the safest and most predictable action when another vehicle is passing you.",es:"Cuando otro vehículo le adelanta, debe:",esOpts:["Frenar con fuerza para crear más espacio","Mantener una velocidad constante","Acelerar para igualar al vehículo que adelanta"]},
+{cat:'safety',q:"To reduce aggressive driving habits, you should:",opts:["Relax and focus on reaching your destination safely","Drive above the speed limit to keep pace with traffic","Tailgate the driver in front of you"],ans:0,exp:"Staying calm, allowing extra travel time, and focusing on safe arrival are the key strategies to avoid road rage.",es:"Para reducir los hábitos de conducción agresiva, debe:",esOpts:["Relajarse y enfocarse en llegar a su destino con seguridad","Conducir por encima del límite de velocidad para seguir el ritmo del tráfico","Seguir de cerca al conductor de enfrente"]},
+{cat:'safety',q:"You should leave enough space between you and the vehicle ahead to:",opts:["Stay out of the other driver's blind spot","Allow for a sudden stop","So the driver ahead can see your headlights in the mirror"],ans:1,exp:"The primary reason for following distance is to have enough space and time to stop safely if the car ahead brakes suddenly.",es:"Debe dejar suficiente espacio entre usted y el vehículo de adelante para:",esOpts:["Mantenerse fuera del punto ciego del otro conductor","Permitir una parada repentina","Para que el conductor de adelante pueda ver sus faros en el espejo"]},
+{cat:'safety',q:"Before starting your vehicle, you should always:",opts:["Adjust rearview and side mirrors only","Buckle your seat belt only","Adjust mirrors, buckle your seat belt, and ensure all passengers are buckled"],ans:2,exp:"Both adjusting mirrors for visibility and buckling up are required safety steps before every trip.",es:"Antes de arrancar su vehículo, siempre debe:",esOpts:["Solo ajustar los espejos retrovisores y laterales","Solo abrocharse el cinturón de seguridad","Ajustar los espejos, abrocharse el cinturón y asegurarse de que todos los pasajeros estén abrochados"]},
+{cat:'safety',q:"If a truck or bus is turning right where you also need to turn right, you should:",opts:["Turn before the truck or bus gets to the turn","Wait until the truck or bus completes its turn","Squeeze between the truck and the curb"],ans:1,exp:"Large vehicles need extra space to complete turns and may swing wide. Never try to squeeze past.",es:"Si un camión o autobús está girando a la derecha donde usted también necesita girar, debe:",esOpts:["Girar antes de que el camión o autobús llegue al giro","Esperar hasta que el camión o autobús complete su giro","Pasar entre el camión y el bordillo"]},
+{cat:'safety',q:"Under Arizona's Move Over law, when passing a vehicle with flashing lights on the roadside you must:",opts:["Move over only for police and ambulances","Move over only for emergency vehicles and tow trucks","Move over or slow down for all vehicles with flashing lights, including maintenance vehicles"],ans:2,exp:"Arizona's Move Over law (ARS 28-775) covers all vehicles with flashing lights, not just emergency vehicles.",es:"Bajo la ley 'Move Over' de Arizona, al pasar un vehículo con luces intermitentes al costado de la carretera debe:",esOpts:["Cambiar de carril solo para policía y ambulancias","Cambiar de carril solo para vehículos de emergencia y grúas","Cambiar de carril o reducir la velocidad para todos los vehículos con luces intermitentes"]},
+{cat:'safety',q:"If you drive into a flood-barricaded area and require emergency rescue, you may be:",opts:["Given a warning with no financial penalty","Held liable for the costs of any emergency response","Issued an automatic 30-day vehicle impoundment"],ans:1,exp:"Arizona law holds drivers financially responsible for emergency response costs when they ignore barricades and enter flooded areas.",es:"Si conduce hacia una zona inundada con barricadas y necesita rescate de emergencia, puede:",esOpts:["Recibir una advertencia sin penalidad económica","Ser responsable de los costos de respuesta de emergencia","Recibir un confiscamiento automático del vehículo por 30 días"]},
 
-  // ── BICYCLES & MISC ──
-  {q:"Bicyclists on Arizona roads should:",opts:["Ride facing oncoming traffic","Ride in the same direction as traffic","Ride on the sidewalk at all times"],ans:1},
-  {q:"When passing a bicycle traveling in the same direction, you must leave a minimum distance of:",opts:["3 feet","6 feet","10 feet"],ans:0},
-  {q:"Arizona bicyclists are required to:",opts:["Stay in the right lane at all times","Obey the same traffic laws as motor vehicle drivers","Never pass motor vehicles"],ans:1},
-  {q:"When making a right turn at an intersection where a pedestrian is crossing using a guide dog or white cane, you must:",opts:["Turn off your engine until they cross","Tell the pedestrian when it is safe to cross","Wait until the person has completely crossed the street"],ans:2},
-  {q:"A vehicle's two-part safety belt system should be used:",opts:["With the lap belt only","With both the lap and shoulder belt","With the shoulder belt only"],ans:1},
-  {q:"When portable school crossing signs are placed on the roadway in Arizona, the maximum speed limit is:",opts:["10 mph","15 mph","20 mph"],ans:1}
+// ── DUI ──
+{cat:'dui',q:"You are considered to be driving under the influence if your BAC is:",opts:["0.08% or above (0.04% if operating a commercial vehicle)","0.80% or above","0.10% or above"],ans:0,exp:"Arizona's DUI threshold is 0.08% BAC for standard drivers and 0.04% for those operating commercial vehicles.",es:"Se considera que conduce bajo la influencia si su concentración de alcohol en sangre (BAC) es:",esOpts:["0.08% o más (0.04% si opera un vehículo comercial)","0.80% o más","0.10% o más"]},
+{cat:'dui',q:"You are driving under the EXTREME influence if your BAC is:",opts:["0.18% or above","0.28% or above","0.15% or above"],ans:2,exp:"Arizona's extreme DUI threshold is 0.15% BAC, which carries significantly harsher penalties.",es:"Se considera que conduce bajo INFLUENCIA EXTREMA si su BAC es:",esOpts:["0.18% o más","0.28% o más","0.15% o más"]},
+{cat:'dui',q:"If you are under age 21, your license may be suspended if your BAC is:",opts:["0.10% or above","0.05% or above","Any detectable amount"],ans:2,exp:"Arizona has zero tolerance for underage drinking and driving — any detectable BAC can result in license suspension.",es:"Si tiene menos de 21 años, su licencia puede suspenderse si su BAC es:",esOpts:["0.10% o más","0.05% o más","Cualquier cantidad detectable"]},
+{cat:'dui',q:"Only one thing can reduce your blood alcohol concentration (BAC):",opts:["Drinking coffee","Eating fatty foods","Time"],ans:2,exp:"Only time allows the body to metabolize alcohol. Coffee, food, and other remedies do not lower BAC.",es:"Solo una cosa puede reducir su concentración de alcohol en sangre (BAC):",esOpts:["Tomar café","Comer alimentos grasos","El tiempo"]},
+{cat:'dui',q:"Which driving skills are affected by alcohol and/or drugs?",opts:["Alertness only","Coordination only","Both alertness and coordination"],ans:2,exp:"Alcohol and drugs impair alertness, judgment, reaction time, coordination, and vision — all essential for safe driving.",es:"¿Qué habilidades de conducción se ven afectadas por el alcohol y/o las drogas?",esOpts:["Solo el estado de alerta","Solo la coordinación","Tanto el estado de alerta como la coordinación"]},
+{cat:'dui',q:"You are required by Arizona law to notify the MVD of a change of address within:",opts:["10 days","30 days","6 months"],ans:0,exp:"Arizona law (ARS 28-448) requires drivers to notify the MVD within 10 days of changing their address.",es:"La ley de Arizona le exige notificar al MVD un cambio de domicilio dentro de:",esOpts:["10 días","30 días","6 meses"]},
+{cat:'dui',q:"The Arizona Distracted Driver law prohibits:",opts:["Holding or supporting a wireless device while driving","Having a passenger in your car","Chewing gum while driving"],ans:0,exp:"Arizona's hands-free law (effective 2021) bans holding or supporting any wireless device while driving.",es:"La ley de conductor distraído de Arizona prohíbe:",esOpts:["Sostener o apoyar un dispositivo inalámbrico mientras conduce","Tener un pasajero en su auto","Masticar chicle mientras conduce"]},
+{cat:'dui',q:"Under the Arizona Graduated Driver License (Class G), new drivers cannot drive unsupervised between:",opts:["10:00 p.m. and 5:00 a.m.","11:00 p.m. and 6:00 a.m.","Midnight and 5:00 a.m."],ans:2,exp:"Class G license holders are restricted from driving between midnight and 5 a.m. during the first phase of the GDL program.",es:"Bajo la Licencia de Conductor Graduado de Arizona (Clase G), los nuevos conductores no pueden conducir sin supervisión entre:",esOpts:["10:00 p.m. y 5:00 a.m.","11:00 p.m. y 6:00 a.m.","Medianoche y 5:00 a.m."]},
+
+// ── BIKE / MISC ──
+{cat:'bike',q:"Bicyclists on Arizona roads should:",opts:["Ride facing oncoming traffic","Ride in the same direction as traffic","Always ride on the sidewalk"],ans:1,exp:"Bicyclists must follow the same traffic laws as motor vehicles, including riding in the same direction as traffic.",es:"Los ciclistas en las carreteras de Arizona deben:",esOpts:["Circular en sentido contrario al tráfico","Circular en la misma dirección que el tráfico","Siempre circular por la acera"]},
+{cat:'bike',q:"When passing a bicycle traveling in the same direction, you must leave at least:",opts:["3 feet of clearance","6 feet of clearance","10 feet of clearance"],ans:0,exp:"Arizona law requires a minimum 3-foot buffer between your vehicle and a bicycle when passing.",es:"Al adelantar a una bicicleta que va en la misma dirección, debe dejar al menos:",esOpts:["3 pies de separación","6 pies de separación","10 pies de separación"]},
+{cat:'bike',q:"Bicyclists in Arizona are required to:",opts:["Stay in the right lane at all times","Obey the same traffic laws as motor vehicle drivers","Never pass motor vehicles"],ans:1,exp:"Bicycles are treated as vehicles in Arizona and must obey all traffic laws.",es:"Los ciclistas en Arizona están obligados a:",esOpts:["Permanecer siempre en el carril derecho","Obedecer las mismas leyes de tránsito que los conductores de vehículos motorizados","Nunca adelantar a vehículos motorizados"]},
+{cat:'bike',q:"When making a right turn where a pedestrian with a guide dog or white cane is crossing, you must:",opts:["Turn off your engine until they cross","Tell the pedestrian when it is safe to cross","Wait until the person has completely crossed the street"],ans:2,exp:"Blind pedestrians have absolute right-of-way. Wait completely until they have cleared the intersection.",es:"Al girar a la derecha donde un peatón con perro guía o bastón blanco está cruzando, debe:",esOpts:["Apagar el motor hasta que crucen","Decirle al peatón cuándo es seguro cruzar","Esperar hasta que la persona haya cruzado completamente la calle"]},
+{cat:'bike',q:"A vehicle's two-part safety belt system should be used with:",opts:["The lap belt only","Both the lap and shoulder belt","The shoulder belt only"],ans:1,exp:"Using both parts of the belt together provides far greater protection than either portion alone.",es:"El sistema de cinturón de seguridad de dos partes del vehículo debe usarse con:",esOpts:["Solo el cinturón de cadera","Tanto el cinturón de cadera como el de hombro","Solo el cinturón de hombro"]},
+{cat:'bike',q:"When portable school crossing signs are placed on the roadway, the maximum speed is:",opts:["10 mph","15 mph","20 mph"],ans:1,exp:"Portable school crossing signs establish a temporary 15 mph speed limit.",es:"Cuando se colocan señales portátiles de cruce escolar en la carretera, la velocidad máxima es:",esOpts:["10 mph","15 mph","20 mph"]},
+{cat:'bike',q:"You are required to report an accident to police when:",opts:["Only when there are injuries","Damage exceeds $1,000 or there are injuries or fatalities","Only when the other driver requests it"],ans:1,exp:"Arizona requires a police report whenever property damage exceeds $1,000 or there are any injuries or deaths.",es:"Está obligado a reportar un accidente a la policía cuando:",esOpts:["Solo cuando hay lesiones","El daño supera $1,000 o hay lesiones o muertes","Solo cuando el otro conductor lo solicite"]},
+{cat:'bike',q:"If alcohol effects are reduced only by time, which of the following will NOT sober you up?",opts:["Drinking coffee","Taking a cold shower","All of the above — none will reduce BAC"],ans:2,exp:"No substance or activity speeds up alcohol metabolism. Coffee, showers, and food all feel helpful but do not lower BAC.",es:"Si los efectos del alcohol solo se reducen con el tiempo, ¿cuál de las siguientes NO le ayudará a sobriarse?",esOpts:["Tomar café","Darse una ducha fría","Todas las anteriores: ninguna reducirá el BAC"]}
 ];
 
-// ═══════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════
-let testQs = [];          // 30 selected questions
-let currentIdx = 0;
-let userAnswers = {};     // { questionIndex: optionIndex }
-let flagged = {};         // { questionIndex: true }
-let timerInterval = null;
-let elapsedSeconds = 0;
+// ═══════════════ STATE ═══════════════
+let mode='test', lang='en', darkOn=false;
+let testQs=[], currentIdx=0, userAnswers={}, flagged={}, studyResults={};
+let timerInterval=null, elapsed=0;
+let drillMode=false, drillQs=[];
 
-// ═══════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+const CAT_COLORS={rules:'#2563eb',signs:'#f59e0b',safety:'#16a34a',dui:'#dc2626',bike:'#7c3aed'};
+const CAT_LABELS={rules:{en:'Rules of the Road',es:'Reglas de Tránsito'},signs:{en:'Signs & Signals',es:'Señales de Tráfico'},safety:{en:'Safe Driving',es:'Manejo Seguro'},dui:{en:'DUI & Laws',es:'DUI y Leyes'},bike:{en:'Bicycles & Other',es:'Bicicletas y Otros'}};
+
+const T={
+  en:{begin:'Begin Test',mode_badge_test:'TEST MODE',mode_badge_study:'STUDY MODE',subtitle_test:'Answer all 30 questions, then submit for your score',subtitle_study:'Instant feedback after each answer to help you learn',prev:'Previous',next:'Next',submit:'Submit Test',flag:'🚩 Flag for review',answered:'answered',of:'of',leg_ans:'Answered',leg_flag:'Flagged',leg_none:'Not answered',correct_fb:'✅ Correct!',wrong_fb:'❌ Incorrect. The correct answer is:',res_title:'Test Complete',drill_title:'Missed Questions Drill',retake:'New Test',drill_btn:'🎯 Retry Wrong Answers',review_title:'Question Review',your_ans:'Your answer:',correct_ans:'Correct answer:',explanation:'Explanation:',pass:'✓ PASS',fail:'✗ FAIL',pass_sub:'Congratulations! You passed with',fail_sub:'You need 24/30 (80%) to pass. Keep studying!',lbl_correct:'Correct',lbl_wrong:'Incorrect',lbl_time:'Time'},
+  es:{begin:'Comenzar Examen',mode_badge_test:'MODO EXAMEN',mode_badge_study:'MODO ESTUDIO',subtitle_test:'Responda las 30 preguntas y luego envíe para ver su puntuación',subtitle_study:'Retroalimentación instantánea después de cada respuesta para ayudarle a aprender',prev:'Anterior',next:'Siguiente',submit:'Enviar Examen',flag:'🚩 Marcar para revisión',answered:'respondidas',of:'de',leg_ans:'Respondida',leg_flag:'Marcada',leg_none:'Sin responder',correct_fb:'✅ ¡Correcto!',wrong_fb:'❌ Incorrecto. La respuesta correcta es:',res_title:'Examen Completo',drill_title:'Práctica de Respuestas Incorrectas',retake:'Nuevo Examen',drill_btn:'🎯 Reintentar Respuestas Incorrectas',review_title:'Revisión de Preguntas',your_ans:'Su respuesta:',correct_ans:'Respuesta correcta:',explanation:'Explicación:',pass:'✓ APROBADO',fail:'✗ REPROBADO',pass_sub:'¡Felicitaciones! Aprobó con',fail_sub:'Necesita 24/30 (80%) para aprobar. ¡Siga estudiando!',lbl_correct:'Correctas',lbl_wrong:'Incorrectas',lbl_time:'Tiempo'}
+};
+
+// ═══════════════ UTILS ═══════════════
+function t(key){return T[lang][key]||T.en[key]}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function fmtTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function showScreen(n){['start','test','results'].forEach(s=>document.getElementById('screen-'+s).classList.add('hidden'));document.getElementById('screen-'+n).classList.remove('hidden')}
+
+// ═══════════════ DARK MODE ═══════════════
+function toggleDark(){
+  darkOn=!darkOn;
+  document.documentElement.setAttribute('data-theme',darkOn?'dark':'light');
+  document.querySelector('.dark-toggle').textContent=darkOn?'☀️':'🌙';
+}
+
+// ═══════════════ LANGUAGE ═══════════════
+function toggleLang(){
+  lang=lang==='en'?'es':'en';
+  document.getElementById('lang-btn').textContent=lang==='en'?'ES':'EN';
+  applyLangToUI();
+  if(document.getElementById('screen-test').classList.contains('hidden')===false) renderQuestion(currentIdx);
+}
+function applyLangToUI(){
+  document.getElementById('mode-badge').textContent=t(mode==='test'?'mode_badge_test':'mode_badge_study');
+  document.getElementById('test-subtitle').textContent=t(mode==='test'?'subtitle_test':'subtitle_study');
+  document.getElementById('lbl-prev').textContent=t('prev');
+  document.getElementById('lbl-next').textContent=t('next');
+  document.getElementById('lbl-submit').textContent=t('submit');
+  document.getElementById('flag-label').textContent=t('flag');
+  document.getElementById('leg-ans').textContent=t('leg_ans');
+  document.getElementById('leg-flag').textContent=t('leg_flag');
+  document.getElementById('leg-none').textContent=t('leg_none');
+  document.getElementById('lbl-retake').textContent=t('retake');
+  document.getElementById('lbl-drill').textContent=t('drill_btn');
+  document.getElementById('lbl-review-title').textContent=t('review_title');
+  document.getElementById('lbl-correct').textContent=t('lbl_correct');
+  document.getElementById('lbl-wrong').textContent=t('lbl_wrong');
+  document.getElementById('lbl-time').textContent=t('lbl_time');
+}
+
+// ═══════════════ MODE SELECT ═══════════════
+function setMode(m){
+  mode=m;
+  document.getElementById('btn-mode-test').classList.toggle('active',m==='test');
+  document.getElementById('btn-mode-study').classList.toggle('active',m==='study');
+}
+
+// ═══════════════ HISTORY ═══════════════
+function saveHistory(correct,total,pct,passed,elapsed,modeUsed){
+  const hist=JSON.parse(localStorage.getItem('az_mvd_history')||'[]');
+  hist.unshift({date:new Date().toLocaleDateString(),score:correct+'/'+total,pct:pct+'%',passed,time:fmtTime(elapsed),mode:modeUsed});
+  if(hist.length>10) hist.pop();
+  localStorage.setItem('az_mvd_history',JSON.stringify(hist));
+}
+function renderHistory(){
+  const hist=JSON.parse(localStorage.getItem('az_mvd_history')||'[]');
+  const el=document.getElementById('history-content');
+  if(!hist.length){el.innerHTML='<p class="no-history">No tests taken yet.</p>';return}
+  el.innerHTML=`<table class="history-table"><thead><tr><th>Date</th><th>Score</th><th>%</th><th>Result</th><th>Time</th><th>Mode</th></tr></thead><tbody>${hist.map(h=>`<tr><td>${h.date}</td><td>${h.score}</td><td>${h.pct}</td><td><span class="badge ${h.passed?'pass':'fail'}">${h.passed?'PASS':'FAIL'}</span></td><td>${h.time}</td><td>${h.mode}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ═══════════════ CONFETTI ═══════════════
+function confetti(){
+  const colors=['#2563eb','#16a34a','#f59e0b','#ec4899','#7c3aed','#ef4444'];
+  for(let i=0;i<130;i++){
+    setTimeout(()=>{
+      const d=document.createElement('div');
+      const size=Math.random()*9+5;
+      d.className='conf-piece';
+      d.style.cssText=`left:${Math.random()*100}%;top:-20px;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};`;
+      document.body.appendChild(d);
+      requestAnimationFrame(()=>{
+        d.style.transition=`top ${Math.random()*2.5+2}s linear,transform ${Math.random()*2.5+2}s linear,opacity 0.5s ${Math.random()*2+2}s`;
+        d.style.top='110vh';d.style.transform=`rotate(${Math.random()*720}deg) translateX(${(Math.random()-.5)*300}px)`;d.style.opacity='0';
+      });
+      setTimeout(()=>d.remove(),5500);
+    },i*18);
   }
-  return a;
 }
 
-function showScreen(name){
-  document.getElementById('screen-start').classList.add('hidden');
-  document.getElementById('screen-test').classList.add('hidden');
-  document.getElementById('screen-results').classList.add('hidden');
-  document.getElementById('screen-'+name).classList.remove('hidden');
-}
-
-function formatTime(s){
-  const m=Math.floor(s/60).toString().padStart(2,'0');
-  const sec=(s%60).toString().padStart(2,'0');
-  return m+':'+sec;
-}
-
-// ═══════════════════════════════════════════
-// START TEST
-// ═══════════════════════════════════════════
+// ═══════════════ START TEST ═══════════════
 function startTest(){
-  testQs = shuffle(bank).slice(0, 30);
-  currentIdx = 0;
-  userAnswers = {};
-  flagged = {};
-  elapsedSeconds = 0;
-
-  buildNavGrid();
-  renderQuestion(0);
-  showScreen('test');
-
+  const checkedCats=[...document.querySelectorAll('[data-cat]:checked')].map(c=>c.dataset.cat);
+  if(!checkedCats.length){alert('Please select at least one category.');return}
+  const pool=bank.filter(q=>checkedCats.includes(q.cat));
+  if(pool.length<5){alert('Not enough questions in selected categories.');return}
+  testQs=shuffle(pool).slice(0,Math.min(30,pool.length));
+  currentIdx=0;userAnswers={};flagged={};studyResults={};elapsed=0;drillMode=false;
+  document.getElementById('mode-badge').textContent=t(mode==='test'?'mode_badge_test':'mode_badge_study');
+  document.getElementById('test-subtitle').textContent=t(mode==='test'?'subtitle_test':'subtitle_study');
+  document.getElementById('test-title').textContent='Arizona MVD Knowledge Test';
+  buildNavGrid();renderQuestion(0);showScreen('test');
   clearInterval(timerInterval);
-  timerInterval = setInterval(()=>{
-    elapsedSeconds++;
-    document.getElementById('timer').textContent = formatTime(elapsedSeconds);
-  }, 1000);
+  timerInterval=setInterval(()=>{elapsed++;document.getElementById('timer').textContent=fmtTime(elapsed)},1000);
 }
 
-// ═══════════════════════════════════════════
-// NAV GRID
-// ═══════════════════════════════════════════
+// ═══════════════ NAV GRID ═══════════════
 function buildNavGrid(){
-  const grid = document.getElementById('nav-grid');
-  grid.innerHTML = '';
-  for(let i=0;i<30;i++){
-    const btn = document.createElement('button');
-    btn.className = 'nav-dot';
-    btn.id = 'ndot-'+i;
-    btn.textContent = i+1;
-    btn.onclick = ()=>navigate(i - currentIdx);
-    grid.appendChild(btn);
+  const g=document.getElementById('nav-grid');g.innerHTML='';
+  for(let i=0;i<testQs.length;i++){
+    const b=document.createElement('button');
+    b.className='nav-dot';b.id='ndot-'+i;b.textContent=i+1;
+    const idx=i;b.onclick=()=>goTo(idx);g.appendChild(b);
   }
 }
-
 function updateNavGrid(){
-  for(let i=0;i<30;i++){
-    const dot = document.getElementById('ndot-'+i);
-    if(!dot) continue;
-    dot.className = 'nav-dot';
-    if(i === currentIdx) dot.classList.add('current');
-    if(userAnswers[i] !== undefined) dot.classList.add('answered');
-    if(flagged[i]) dot.classList.add('flagged');
+  for(let i=0;i<testQs.length;i++){
+    const d=document.getElementById('ndot-'+i);if(!d)continue;
+    d.className='nav-dot';
+    if(i===currentIdx)d.classList.add('current');
+    if(mode==='study'){
+      if(studyResults[i]==='correct')d.classList.add('study-correct');
+      else if(studyResults[i]==='wrong')d.classList.add('study-wrong');
+      else if(userAnswers[i]!==undefined)d.classList.add('answered');
+    } else {
+      if(userAnswers[i]!==undefined)d.classList.add('answered');
+    }
+    if(flagged[i])d.classList.add('flagged');
   }
-  // answered count
-  const done = Object.keys(userAnswers).length;
-  document.getElementById('answered-count').textContent = done+' of 30 answered';
+  const done=Object.keys(userAnswers).length;
+  document.getElementById('answered-count').textContent=done+' '+t('of')+' '+testQs.length+' '+t('answered');
 }
 
-// ═══════════════════════════════════════════
-// RENDER QUESTION
-// ═══════════════════════════════════════════
+// ═══════════════ RENDER QUESTION ═══════════════
 function renderQuestion(idx){
-  currentIdx = idx;
-  const q = testQs[idx];
+  currentIdx=idx;
+  const q=testQs[idx];
+  const L=lang;
+  const qText=L==='es'&&q.es?q.es:q.q;
+  const opts=L==='es'&&q.esOpts?q.esOpts:q.opts;
 
-  document.getElementById('q-counter').textContent = 'Question '+(idx+1)+' of 30';
-  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-counter').textContent='Question '+(idx+1)+' of '+testQs.length;
+  document.getElementById('q-text').textContent=qText;
 
-  const letters = ['A','B','C','D'];
-  const optContainer = document.getElementById('options');
-  optContainer.innerHTML = '';
+  // category badge
+  const cb=document.getElementById('q-cat-badge');
+  cb.textContent=CAT_LABELS[q.cat]?.[lang]||CAT_LABELS[q.cat]?.en||q.cat;
+  cb.style.background=CAT_COLORS[q.cat]+'22';
+  cb.style.color=CAT_COLORS[q.cat];
 
-  q.opts.forEach((opt, i)=>{
-    const label = document.createElement('label');
-    label.className = 'option-label' + (userAnswers[idx]===i ? ' selected' : '');
-    label.innerHTML = `
-      <input type="radio" name="q" value="${i}" ${userAnswers[idx]===i?'checked':''}>
-      <div class="option-letter">${letters[i]}</div>
-      <div class="option-text">${opt}</div>
-    `;
-    label.onclick = ()=>selectAnswer(idx, i);
-    optContainer.appendChild(label);
+  // sign image
+  const sc=document.getElementById('sign-container');
+  sc.innerHTML=q.sign&&SIGNS[q.sign]?SIGNS[q.sign]:'';
+
+  // options
+  const oc=document.getElementById('options');oc.innerHTML='';
+  const letters=['A','B','C','D'];
+  const isLocked=mode==='study'&&studyResults[idx]!==undefined;
+  opts.forEach((opt,i)=>{
+    const label=document.createElement('label');
+    let cls='opt';
+    if(userAnswers[idx]===i)cls+=' selected';
+    if(isLocked){
+      cls+=' locked';
+      if(i===q.ans)cls+=' study-correct-opt';
+      else if(userAnswers[idx]===i&&i!==q.ans)cls+=' study-wrong-opt';
+    }
+    label.className=cls;
+    label.innerHTML=`<div class="opt-letter">${letters[i]}</div><div class="opt-text">${opt}</div>`;
+    if(!isLocked)label.onclick=()=>selectAnswer(idx,i);
+    oc.appendChild(label);
   });
 
-  // flag checkbox
-  document.getElementById('flag-check').checked = !!flagged[idx];
-
-  // prev/next
-  document.getElementById('btn-prev').disabled = (idx===0);
-  document.getElementById('btn-next').disabled = (idx===29);
-
-  // progress bar
-  document.getElementById('progress-bar').style.width = ((idx+1)/30*100)+'%';
-
-  updateNavGrid();
-}
-
-// ═══════════════════════════════════════════
-// SELECT ANSWER
-// ═══════════════════════════════════════════
-function selectAnswer(qIdx, optIdx){
-  userAnswers[qIdx] = optIdx;
-  // update highlight
-  document.querySelectorAll('.option-label').forEach((l,i)=>{
-    l.classList.toggle('selected', i===optIdx);
-    l.querySelector('.option-letter').style.background = i===optIdx?'#2563eb':'';
-    l.querySelector('.option-letter').style.color = i===optIdx?'white':'';
-    l.querySelector('.option-letter').style.borderColor = i===optIdx?'#2563eb':'';
-  });
-  updateNavGrid();
-}
-
-// ═══════════════════════════════════════════
-// NAVIGATE
-// ═══════════════════════════════════════════
-function navigate(delta){
-  const next = currentIdx + delta;
-  if(next>=0 && next<30) renderQuestion(next);
-}
-
-// ═══════════════════════════════════════════
-// FLAG
-// ═══════════════════════════════════════════
-function toggleFlag(){
-  if(document.getElementById('flag-check').checked){
-    flagged[currentIdx] = true;
-  } else {
-    delete flagged[currentIdx];
+  // study feedback
+  const fb=document.getElementById('study-feedback');
+  fb.className='study-feedback';fb.textContent='';
+  if(mode==='study'&&studyResults[idx]!==undefined){
+    const correct=studyResults[idx]==='correct';
+    fb.className='study-feedback '+(correct?'correct':'incorrect');
+    if(correct){fb.textContent=t('correct_fb');}
+    else{
+      const correctText=opts[q.ans];
+      fb.innerHTML=`${t('wrong_fb')} <strong>${letters[q.ans]}) ${correctText}</strong><br><em>${t('explanation')} ${q.exp}</em>`;
+    }
+    if(correct){fb.innerHTML+=`<br><em>${t('explanation')} ${q.exp}</em>`;}
   }
+
+  // flag
+  document.getElementById('flag-check').checked=!!flagged[idx];
+  document.getElementById('flag-label').textContent=t('flag');
+
+  // nav buttons
+  document.getElementById('btn-prev').disabled=(idx===0);
+  document.getElementById('btn-next').disabled=(idx===testQs.length-1);
+  document.getElementById('progress-bar').style.width=((idx+1)/testQs.length*100)+'%';
+
   updateNavGrid();
 }
 
-// ═══════════════════════════════════════════
-// SUBMIT
-// ═══════════════════════════════════════════
+// ═══════════════ SELECT ANSWER ═══════════════
+function selectAnswer(qIdx,optIdx){
+  userAnswers[qIdx]=optIdx;
+  if(mode==='study'&&studyResults[qIdx]===undefined){
+    const q=testQs[qIdx];
+    studyResults[qIdx]=optIdx===q.ans?'correct':'wrong';
+    renderQuestion(qIdx); // re-render with feedback
+    return;
+  }
+  document.querySelectorAll('.opt').forEach((l,i)=>{
+    l.classList.toggle('selected',i===optIdx);
+    const ol=l.querySelector('.opt-letter');
+    ol.style.background=i===optIdx?'var(--opt-sel-b)':'';
+    ol.style.color=i===optIdx?'#fff':'';
+    ol.style.borderColor=i===optIdx?'var(--opt-sel-b)':'';
+  });
+  updateNavGrid();
+}
+
+function goTo(idx){renderQuestion(idx)}
+function navigate(d){const n=currentIdx+d;if(n>=0&&n<testQs.length)renderQuestion(n)}
+function toggleFlag(){if(document.getElementById('flag-check').checked)flagged[currentIdx]=true;else delete flagged[currentIdx];updateNavGrid()}
+
+// ═══════════════ SUBMIT ═══════════════
 function confirmSubmit(){
-  const done = Object.keys(userAnswers).length;
-  const unanswered = 30 - done;
-  if(unanswered > 0){
-    const go = confirm(`You have ${unanswered} unanswered question${unanswered>1?'s':''}. Submit anyway?`);
-    if(!go) return;
-  }
+  const done=Object.keys(userAnswers).length;
+  const left=testQs.length-done;
+  if(left>0){if(!confirm(`${left} question${left>1?'s':''} unanswered. Submit anyway?`))return}
   submitTest();
 }
-
 function submitTest(){
   clearInterval(timerInterval);
-
-  let correct = 0;
-  const reviewItems = [];
-
-  testQs.forEach((q, i)=>{
-    const userAns = userAnswers[i];
-    const isCorrect = userAns === q.ans;
-    if(isCorrect) correct++;
-
-    const letters = ['A','B','C','D'];
-    reviewItems.push({
-      num: i+1,
-      q: q.q,
-      correct: isCorrect,
-      yourAns: userAns !== undefined ? letters[userAns]+') '+q.opts[userAns] : 'Not answered',
-      correctAns: letters[q.ans]+') '+q.opts[q.ans]
-    });
+  let correct=0;
+  const items=[];
+  const letters=['A','B','C','D'];
+  testQs.forEach((q,i)=>{
+    const ua=userAnswers[i];
+    const ok=ua===q.ans;
+    if(ok)correct++;
+    const opts=lang==='es'&&q.esOpts?q.esOpts:q.opts;
+    const qText=lang==='es'&&q.es?q.es:q.q;
+    items.push({num:i+1,q:qText,ok,yourAns:ua!==undefined?letters[ua]+') '+opts[ua]:'—',correctAns:letters[q.ans]+') '+opts[q.ans],exp:q.exp});
   });
-
-  const wrong = 30 - correct;
-  const pct = Math.round((correct/30)*100);
-  const pass = correct >= 24;
-
-  // fill results
-  document.getElementById('res-correct').textContent = correct;
-  document.getElementById('res-wrong').textContent = wrong;
-  document.getElementById('res-pct').textContent = pct+'%';
-  document.getElementById('res-time').textContent = formatTime(elapsedSeconds);
-
-  const banner = document.getElementById('pf-banner');
-  banner.className = 'pass-fail-banner '+(pass?'pass':'fail');
-  document.getElementById('pf-verdict').textContent = pass ? '✓ PASS' : '✗ FAIL';
-  document.getElementById('pf-sub').textContent = pass
-    ? `You passed with ${correct}/30 correct (${pct}%). Congratulations!`
-    : `You scored ${correct}/30 (${pct}%). You need 24 correct (80%) to pass. Keep studying!`;
-
-  // build review list
-  const list = document.getElementById('review-list');
-  list.innerHTML = '';
-  reviewItems.forEach(item=>{
-    const div = document.createElement('div');
-    div.className = 'review-item '+(item.correct?'correct':'incorrect');
-    div.innerHTML = `
-      <div class="ri-top">
-        <span class="ri-badge">${item.correct?'✓ Correct':'✗ Incorrect'}</span>
-        <span class="ri-qnum">Question ${item.num}</span>
-      </div>
-      <div class="ri-q">${item.q}</div>
-      ${!item.correct ? `<div class="ri-your">Your answer: ${item.yourAns}</div>` : ''}
-      <div class="ri-correct">${item.correct?'Your answer':'Correct answer'}: ${item.correctAns}</div>
-    `;
-    list.appendChild(div);
-  });
-
+  const pct=Math.round(correct/testQs.length*100);
+  const pass=correct>=Math.ceil(testQs.length*0.8);
+  saveHistory(correct,testQs.length,pct,pass,elapsed,mode==='test'?'Test':'Study');
+  renderResults(correct,testQs.length,pct,pass,items);
   showScreen('results');
+  if(pass)setTimeout(confetti,400);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ═══════════════════════════════════════════
-// RETAKE
-// ═══════════════════════════════════════════
-function retakeTest(){
-  showScreen('start');
+function renderResults(correct,total,pct,pass,items){
+  document.getElementById('res-title').textContent=t('res_title');
+  const banner=document.getElementById('pf-banner');
+  banner.className='pf-banner '+(pass?'pass':'fail');
+  document.getElementById('pf-verdict').textContent=pass?t('pass'):t('fail');
+  document.getElementById('pf-sub').textContent=pass?`${t('pass_sub')} ${correct}/${total} (${pct}%).`:`${t('fail_sub')}`;
+  document.getElementById('res-c').textContent=correct;
+  document.getElementById('res-w').textContent=total-correct;
+  document.getElementById('res-p').textContent=pct+'%';
+  document.getElementById('res-t').textContent=fmtTime(elapsed);
+  document.getElementById('lbl-retake').textContent=t('retake');
+  document.getElementById('lbl-drill').textContent=t('drill_btn');
+  document.getElementById('lbl-review-title').textContent=t('review_title');
+  document.getElementById('lbl-correct').textContent=t('lbl_correct');
+  document.getElementById('lbl-wrong').textContent=t('lbl_wrong');
+  document.getElementById('lbl-time').textContent=t('lbl_time');
+  const wrongItems=items.filter(it=>!it.ok);
+  document.getElementById('btn-retry-wrong').style.display=wrongItems.length?'':'none';
+  const list=document.getElementById('review-list');list.innerHTML='';
+  items.forEach(item=>{
+    const div=document.createElement('div');
+    div.className='rev-item '+(item.ok?'c':'w');
+    div.innerHTML=`<div class="rev-top"><span class="rev-badge">${item.ok?'✓ '+t('lbl_correct'):'✗ '+t('lbl_wrong')}</span><span class="rev-qn">Q${item.num}</span></div><div class="rev-q">${item.q}</div>${!item.ok?`<div class="rev-your">${t('your_ans')} ${item.yourAns}</div>`:''}<div class="rev-correct">${item.ok?t('your_ans'):t('correct_ans')} ${item.correctAns}</div><div class="rev-exp">${t('explanation')} ${item.exp}</div>`;
+    list.appendChild(div);
+  });
 }
+
+// ═══════════════ DRILL WRONG ═══════════════
+function drillWrong(){
+  const wrongIdxs=testQs.map((_,i)=>i).filter(i=>userAnswers[i]!==testQs[i].ans);
+  drillQs=wrongIdxs.map(i=>testQs[i]);
+  testQs=drillQs;currentIdx=0;userAnswers={};flagged={};studyResults={};elapsed=0;
+  mode='study';drillMode=true;
+  document.getElementById('mode-badge').textContent=t('mode_badge_study');
+  document.getElementById('test-subtitle').textContent=t('subtitle_study');
+  document.getElementById('test-title').textContent=t('drill_title');
+  buildNavGrid();renderQuestion(0);showScreen('test');
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{elapsed++;document.getElementById('timer').textContent=fmtTime(elapsed)},1000);
+}
+
+// ═══════════════ RETAKE ═══════════════
+function retake(){
+  mode='test';drillMode=false;
+  document.getElementById('btn-mode-test').classList.add('active');
+  document.getElementById('btn-mode-study').classList.remove('active');
+  renderHistory();showScreen('start');
+}
+
+// ═══════════════ INIT ═══════════════
+renderHistory();
 </script>
 </body>
 </html>
