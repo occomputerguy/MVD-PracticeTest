@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arizona DMV Practice Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #222;
+      padding: 20px;
+    }
+
+    header {
+      background: #1a3a5c;
+      color: white;
+      padding: 24px 32px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header .az-flag {
+      font-size: 48px;
+    }
+
+    header h1 { font-size: 1.6rem; }
+    header p  { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
+
+    .section-header {
+      background: #2563eb;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin: 28px 0 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .question-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      border-left: 4px solid #cbd5e1;
+      box-shadow: 0 1px 3px rgba(0,0,0,.07);
+      transition: border-color 0.2s;
+    }
+
+    .question-card.correct  { border-left-color: #16a34a; background: #f0fdf4; }
+    .question-card.incorrect{ border-left-color: #dc2626; background: #fef2f2; }
+    .question-card.skipped  { border-left-color: #f59e0b; background: #fffbeb; }
+
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .question-num {
+      display: inline-block;
+      background: #1a3a5c;
+      color: white;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      text-align: center;
+      line-height: 26px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .options label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: background 0.15s;
+      line-height: 1.4;
+    }
+
+    .options label:hover { background: #f1f5f9; }
+
+    .options input[type="radio"] {
+      margin-top: 2px;
+      accent-color: #2563eb;
+      flex-shrink: 0;
+    }
+
+    .options label.correct-answer {
+      background: #dcfce7;
+      font-weight: 600;
+      color: #15803d;
+    }
+
+    .options label.wrong-answer {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .feedback.correct  { display: block; background: #dcfce7; color: #15803d; }
+    .feedback.incorrect{ display: block; background: #fee2e2; color: #b91c1c; }
+    .feedback.skipped  { display: block; background: #fef3c7; color: #92400e; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.88; }
+
+    #btn-submit { background: #2563eb; color: white; }
+    #btn-reset  { background: #64748b; color: white; }
+
+    #score-box {
+      display: none;
+      background: white;
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      text-align: center;
+    }
+
+    #score-box h2 { font-size: 1.4rem; margin-bottom: 8px; }
+
+    .score-big {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #1a3a5c;
+      line-height: 1;
+    }
+
+    .score-sub { color: #64748b; margin-top: 6px; font-size: 0.95rem; }
+
+    .score-breakdown {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .score-stat {
+      background: #f1f5f9;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .score-stat .num { font-size: 1.5rem; font-weight: 700; }
+    .score-stat .lbl { font-size: 0.8rem; color: #64748b; }
+
+    .score-stat.green .num { color: #16a34a; }
+    .score-stat.red   .num { color: #dc2626; }
+    .score-stat.yellow .num { color: #d97706; }
+
+    .pass-msg { margin-top: 14px; font-size: 1.1rem; font-weight: 700; }
+    .pass-msg.pass { color: #16a34a; }
+    .pass-msg.fail { color: #dc2626; }
+
+    .ref-box {
+      background: white;
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 32px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+
+    .ref-box h2 { color: #1a3a5c; margin-bottom: 14px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+    th { background: #1a3a5c; color: white; padding: 10px 14px; text-align: left; }
+    td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; text-align: center; }
+      .score-big { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="az-flag">🌵</div>
+  <div>
+    <h1>Arizona DMV Driver License Practice Test</h1>
+    <p>95 questions covering rules of the road, signs &amp; signals, and safe driving laws</p>
+  </div>
+</header>
+
+<div id="score-box">
+  <h2>Your Results</h2>
+  <div class="score-big" id="score-pct">--</div>
+  <div class="score-sub" id="score-fraction">-- / 95 correct</div>
+  <div class="score-breakdown">
+    <div class="score-stat green"><div class="num" id="cnt-correct">0</div><div class="lbl">Correct</div></div>
+    <div class="score-stat red">  <div class="num" id="cnt-wrong">0</div>  <div class="lbl">Incorrect</div></div>
+    <div class="score-stat yellow"><div class="num" id="cnt-skip">0</div> <div class="lbl">Skipped</div></div>
+  </div>
+  <div class="pass-msg" id="pass-msg"></div>
+</div>
+
+<form id="test-form">
+
+  <!-- ===== SECTION 1 ===== -->
+  <div class="section-header">Section 1 — Rules of the Road (Questions 1–35)</div>
+
+  <!-- Q1 -->
+  <div class="question-card" id="card-1">
+    <div class="question-text"><span class="question-num">1</span>What is the speed limit when approaching a school crosswalk?</div>
+    <div class="options">
+      <label><input type="radio" name="q1" value="A"> A) 15 mph</label>
+      <label><input type="radio" name="q1" value="B"> B) 20 mph</label>
+      <label><input type="radio" name="q1" value="C"> C) 25 mph</label>
+    </div>
+    <div class="feedback" id="fb-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="card-2">
+    <div class="question-text"><span class="question-num">2</span>A school bus is stopped on a four-lane road with the stop sign extended. What must you do?</div>
+    <div class="options">
+      <label><input type="radio" name="q2" value="A"> A) Slow down and proceed with caution</label>
+      <label><input type="radio" name="q2" value="B"> B) Stop only if moving in the same direction</label>
+      <label><input type="radio" name="q2" value="C"> C) Stop regardless of direction of travel</label>
+    </div>
+    <div class="feedback" id="fb-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="card-3">
+    <div class="question-text"><span class="question-num">3</span>At an uncontrolled intersection where two cars arrive at the same time, which car has the right-of-way?</div>
+    <div class="options">
+      <label><input type="radio" name="q3" value="A"> A) The car on the left</label>
+      <label><input type="radio" name="q3" value="B"> B) The car on the right</label>
+      <label><input type="radio" name="q3" value="C"> C) The car going straight</label>
+    </div>
+    <div class="feedback" id="fb-3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card" id="card-4">
+    <div class="question-text"><span class="question-num">4</span>An emergency vehicle with lights and sirens is approaching. You should:</div>
+    <div class="options">
+      <label><input type="radio" name="q4" value="A"> A) Drive immediately to the right and stop</label>
+      <label><input type="radio" name="q4" value="B"> B) Slow down and permit passage</label>
+      <label><input type="radio" name="q4" value="C"> C) Remain alert and stay right</label>
+    </div>
+    <div class="feedback" id="fb-4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card" id="card-5">
+    <div class="question-text"><span class="question-num">5</span>A hand signal with the arm extended straight out to the left means:</div>
+    <div class="options">
+      <label><input type="radio" name="q5" value="A"> A) Right turn</label>
+      <label><input type="radio" name="q5" value="B"> B) Stopping or slowing</label>
+      <label><input type="radio" name="q5" value="C"> C) Left turn</label>
+    </div>
+    <div class="feedback" id="fb-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card" id="card-6">
+    <div class="question-text"><span class="question-num">6</span>You must yield the right-of-way to pedestrians:</div>
+    <div class="options">
+      <label><input type="radio" name="q6" value="A"> A) Only in a marked crosswalk</label>
+      <label><input type="radio" name="q6" value="B"> B) Crossing any street</label>
+      <label><input type="radio" name="q6" value="C"> C) In any crosswalk or intersection</label>
+    </div>
+    <div class="feedback" id="fb-6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="card-7">
+    <div class="question-text"><span class="question-num">7</span>When driving on wet roads, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q7" value="A"> A) Reduce your speed</label>
+      <label><input type="radio" name="q7" value="B"> B) Pump the brakes occasionally</label>
+      <label><input type="radio" name="q7" value="C"> C) Switch to low beam headlights</label>
+    </div>
+    <div class="feedback" id="fb-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="card-8">
+    <div class="question-text"><span class="question-num">8</span>When entering a road from an alley or driveway, you must:</div>
+    <div class="options">
+      <label><input type="radio" name="q8" value="A"> A) Flash your high beams</label>
+      <label><input type="radio" name="q8" value="B"> B) Sound your horn</label>
+      <label><input type="radio" name="q8" value="C"> C) Stop before the sidewalk</label>
+    </div>
+    <div class="feedback" id="fb-8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="card-9">
+    <div class="question-text"><span class="question-num">9</span>When backing your vehicle, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q9" value="A"> A) Look in the inside rearview mirror only</label>
+      <label><input type="radio" name="q9" value="B"> B) Turn and look out the rear window</label>
+      <label><input type="radio" name="q9" value="C"> C) Turn and look out the driver's side window</label>
+    </div>
+    <div class="feedback" id="fb-9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="question-card" id="card-10">
+    <div class="question-text"><span class="question-num">10</span>When making a left turn at an intersection, you must yield to:</div>
+    <div class="options">
+      <label><input type="radio" name="q10" value="A"> A) All oncoming vehicles going straight</label>
+      <label><input type="radio" name="q10" value="B"> B) Only vehicles in the left lane</label>
+      <label><input type="radio" name="q10" value="C"> C) No vehicles if the signal is green</label>
+    </div>
+    <div class="feedback" id="fb-10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="question-card" id="card-11">
+    <div class="question-text"><span class="question-num">11</span>When parking uphill next to a curb, you should turn your wheels:</div>
+    <div class="options">
+      <label><input type="radio" name="q11" value="A"> A) Right, toward the curb</label>
+      <label><input type="radio" name="q11" value="B"> B) Straight</label>
+      <label><input type="radio" name="q11" value="C"> C) Left, away from the curb (toward traffic)</label>
+    </div>
+    <div class="feedback" id="fb-11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="question-card" id="card-12">
+    <div class="question-text"><span class="question-num">12</span>In a business or residential area, what is the maximum speed if no limit is posted?</div>
+    <div class="options">
+      <label><input type="radio" name="q12" value="A"> A) 30 mph</label>
+      <label><input type="radio" name="q12" value="B"> B) 25 mph</label>
+      <label><input type="radio" name="q12" value="C"> C) 35 mph</label>
+    </div>
+    <div class="feedback" id="fb-12"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="question-card" id="card-13">
+    <div class="question-text"><span class="question-num">13</span>Which of the following is permitted while driving?</div>
+    <div class="options">
+      <label><input type="radio" name="q13" value="A"> A) Talking to passengers</label>
+      <label><input type="radio" name="q13" value="B"> B) Writing or reading text messages</label>
+      <label><input type="radio" name="q13" value="C"> C) Watching or recording video</label>
+    </div>
+    <div class="feedback" id="fb-13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="question-card" id="card-14">
+    <div class="question-text"><span class="question-num">14</span>When turning beyond an intersection, you should signal:</div>
+    <div class="options">
+      <label><input type="radio" name="q14" value="A"> A) While in the intersection</label>
+      <label><input type="radio" name="q14" value="B"> B) Before reaching the intersection</label>
+      <label><input type="radio" name="q14" value="C"> C) Only using a hand signal</label>
+    </div>
+    <div class="feedback" id="fb-14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="question-card" id="card-15">
+    <div class="question-text"><span class="question-num">15</span>It is illegal to follow a fire vehicle responding to an alarm within:</div>
+    <div class="options">
+      <label><input type="radio" name="q15" value="A"> A) 500 feet</label>
+      <label><input type="radio" name="q15" value="B"> B) 200 feet</label>
+      <label><input type="radio" name="q15" value="C"> C) 300 feet</label>
+    </div>
+    <div class="feedback" id="fb-15"></div>
+  </div>
+
+  <!-- Q16 -->
+  <div class="question-card" id="card-16">
+    <div class="question-text"><span class="question-num">16</span>When a school bus is picking up or dropping off children, you must:</div>
+    <div class="options">
+      <label><input type="radio" name="q16" value="A"> A) Stop, then proceed cautiously when the door closes</label>
+      <label><input type="radio" name="q16" value="B"> B) Stop until the bus is moving or the stop sign is retracted</label>
+      <label><input type="radio" name="q16" value="C"> C) Slow down and yield</label>
+    </div>
+    <div class="feedback" id="fb-16"></div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="question-card" id="card-17">
+    <div class="question-text"><span class="question-num">17</span>A hand signal with the arm bent upward at the elbow means:</div>
+    <div class="options">
+      <label><input type="radio" name="q17" value="A"> A) Left turn</label>
+      <label><input type="radio" name="q17" value="B"> B) Stopping or slowing</label>
+      <label><input type="radio" name="q17" value="C"> C) Right turn</label>
+    </div>
+    <div class="feedback" id="fb-17"></div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="question-card" id="card-18">
+    <div class="question-text"><span class="question-num">18</span>After passing a vehicle, it is safe to return to your lane when:</div>
+    <div class="options">
+      <label><input type="radio" name="q18" value="A"> A) You can see both the vehicle's headlights in your rearview mirror</label>
+      <label><input type="radio" name="q18" value="B"> B) The driver signals you over</label>
+      <label><input type="radio" name="q18" value="C"> C) You can see the driver in your side mirror</label>
+    </div>
+    <div class="feedback" id="fb-18"></div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="question-card" id="card-19">
+    <div class="question-text"><span class="question-num">19</span>When parking downhill, you should turn your wheels:</div>
+    <div class="options">
+      <label><input type="radio" name="q19" value="A"> A) Straight</label>
+      <label><input type="radio" name="q19" value="B"> B) Left, away from the edge</label>
+      <label><input type="radio" name="q19" value="C"> C) Right, toward the curb or edge of road</label>
+    </div>
+    <div class="feedback" id="fb-19"></div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="question-card" id="card-20">
+    <div class="question-text"><span class="question-num">20</span>You must signal continuously before turning for at least:</div>
+    <div class="options">
+      <label><input type="radio" name="q20" value="A"> A) 500 feet</label>
+      <label><input type="radio" name="q20" value="B"> B) 4 seconds</label>
+      <label><input type="radio" name="q20" value="C"> C) 100 feet</label>
+    </div>
+    <div class="feedback" id="fb-20"></div>
+  </div>
+
+  <!-- Q21 -->
+  <div class="question-card" id="card-21">
+    <div class="question-text"><span class="question-num">21</span>It is illegal to park within how many feet of a crosswalk?</div>
+    <div class="options">
+      <label><input type="radio" name="q21" value="A"> A) 20 feet</label>
+      <label><input type="radio" name="q21" value="B"> B) 10 feet</label>
+      <label><input type="radio" name="q21" value="C"> C) 15 feet</label>
+    </div>
+    <div class="feedback" id="fb-21"></div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="question-card" id="card-22">
+    <div class="question-text"><span class="question-num">22</span>A hand signal with the arm extended and bent downward means:</div>
+    <div class="options">
+      <label><input type="radio" name="q22" value="A"> A) Stopping or slowing</label>
+      <label><input type="radio" name="q22" value="B"> B) Left turn</label>
+      <label><input type="radio" name="q22" value="C"> C) Right turn</label>
+    </div>
+    <div class="feedback" id="fb-22"></div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="question-card" id="card-23">
+    <div class="question-text"><span class="question-num">23</span>A wheelchair symbol parking space is reserved for:</div>
+    <div class="options">
+      <label><input type="radio" name="q23" value="A"> A) Disabled persons only — no exceptions</label>
+      <label><input type="radio" name="q23" value="B"> B) Anyone if no other space is available</label>
+      <label><input type="radio" name="q23" value="C"> C) Loading or unloading only</label>
+    </div>
+    <div class="feedback" id="fb-23"></div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="question-card" id="card-24">
+    <div class="question-text"><span class="question-num">24</span>A white car is turning left across a lane where a black car is going straight. Who has the right-of-way?</div>
+    <div class="options">
+      <label><input type="radio" name="q24" value="A"> A) The black car going straight</label>
+      <label><input type="radio" name="q24" value="B"> B) The white car turning left</label>
+      <label><input type="radio" name="q24" value="C"> C) Neither — both must yield</label>
+    </div>
+    <div class="feedback" id="fb-24"></div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="question-card" id="card-25">
+    <div class="question-text"><span class="question-num">25</span>When making a left turn, you must enter the intersection from:</div>
+    <div class="options">
+      <label><input type="radio" name="q25" value="A"> A) The lane closest to the center line</label>
+      <label><input type="radio" name="q25" value="B"> B) Either lane</label>
+      <label><input type="radio" name="q25" value="C"> C) The lane farthest from the center line</label>
+    </div>
+    <div class="feedback" id="fb-25"></div>
+  </div>
+
+  <!-- Q26 -->
+  <div class="question-card" id="card-26">
+    <div class="question-text"><span class="question-num">26</span>It is illegal to park within how many feet of a fire hydrant?</div>
+    <div class="options">
+      <label><input type="radio" name="q26" value="A"> A) 15 feet</label>
+      <label><input type="radio" name="q26" value="B"> B) 5 feet</label>
+      <label><input type="radio" name="q26" value="C"> C) 10 feet</label>
+    </div>
+    <div class="feedback" id="fb-26"></div>
+  </div>
+
+  <!-- Q27 -->
+  <div class="question-card" id="card-27">
+    <div class="question-text"><span class="question-num">27</span>A school bus has its flashing lights activated on a divided highway. Which vehicles must stop?</div>
+    <div class="options">
+      <label><input type="radio" name="q27" value="A"> A) All vehicles in both directions</label>
+      <label><input type="radio" name="q27" value="B"> B) Only vehicles behind the bus on the same side</label>
+      <label><input type="radio" name="q27" value="C"> C) All vehicles within 500 feet</label>
+    </div>
+    <div class="feedback" id="fb-27"></div>
+  </div>
+
+  <!-- Q28 -->
+  <div class="question-card" id="card-28">
+    <div class="question-text"><span class="question-num">28</span>When parking uphill without a curb, you should turn your wheels:</div>
+    <div class="options">
+      <label><input type="radio" name="q28" value="A"> A) Right, toward the edge of the road</label>
+      <label><input type="radio" name="q28" value="B"> B) Left, away from the edge</label>
+      <label><input type="radio" name="q28" value="C"> C) Straight</label>
+    </div>
+    <div class="feedback" id="fb-28"></div>
+  </div>
+
+  <!-- Q29 -->
+  <div class="question-card" id="card-29">
+    <div class="question-text"><span class="question-num">29</span>When a law enforcement officer activates lights and sirens behind you, you must:</div>
+    <div class="options">
+      <label><input type="radio" name="q29" value="A"> A) Yield immediately to the right and stop</label>
+      <label><input type="radio" name="q29" value="B"> B) Accelerate to clear the road</label>
+      <label><input type="radio" name="q29" value="C"> C) Brake immediately where you are</label>
+    </div>
+    <div class="feedback" id="fb-29"></div>
+  </div>
+
+  <!-- Q30 -->
+  <div class="question-card" id="card-30">
+    <div class="question-text"><span class="question-num">30</span>When stopped by law enforcement, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q30" value="A"> A) Park and remain in your vehicle</label>
+      <label><input type="radio" name="q30" value="B"> B) Keep seatbelt fastened and hands visible</label>
+      <label><input type="radio" name="q30" value="C"> C) All of the above</label>
+    </div>
+    <div class="feedback" id="fb-30"></div>
+  </div>
+
+  <!-- Q31 -->
+  <div class="question-card" id="card-31">
+    <div class="question-text"><span class="question-num">31</span>If you have a firearm in your vehicle during a traffic stop, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q31" value="A"> A) Keep hands visible on the steering wheel</label>
+      <label><input type="radio" name="q31" value="B"> B) Inform the officer of its location if requested</label>
+      <label><input type="radio" name="q31" value="C"> C) All of the above</label>
+    </div>
+    <div class="feedback" id="fb-31"></div>
+  </div>
+
+  <!-- Q32 -->
+  <div class="question-card" id="card-32">
+    <div class="question-text"><span class="question-num">32</span>Signing a traffic citation means:</div>
+    <div class="options">
+      <label><input type="radio" name="q32" value="A"> A) It is not an admission of guilt</label>
+      <label><input type="radio" name="q32" value="B"> B) It is a promise to appear in court</label>
+      <label><input type="radio" name="q32" value="C"> C) All of the above</label>
+    </div>
+    <div class="feedback" id="fb-32"></div>
+  </div>
+
+  <!-- Q33 -->
+  <div class="question-card" id="card-33">
+    <div class="question-text"><span class="question-num">33</span>If you are involved in a non-injury fender bender, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q33" value="A"> A) Remove the vehicle from the road if operable and safe to do so</label>
+      <label><input type="radio" name="q33" value="B"> B) Wait for emergency responders to arrive</label>
+      <label><input type="radio" name="q33" value="C"> C) Stay in the vehicle and inspect for damage</label>
+    </div>
+    <div class="feedback" id="fb-33"></div>
+  </div>
+
+  <!-- Q34 — placeholder to keep numbering with original test -->
+  <div class="question-card" id="card-34">
+    <div class="question-text"><span class="question-num">34</span>When a pedestrian using a white cane or guide dog is crossing the street, you must:</div>
+    <div class="options">
+      <label><input type="radio" name="q34" value="A"> A) Honk to alert them you are there</label>
+      <label><input type="radio" name="q34" value="B"> B) Stop and yield until they have safely crossed</label>
+      <label><input type="radio" name="q34" value="C"> C) Slow down and proceed carefully around them</label>
+    </div>
+    <div class="feedback" id="fb-34"></div>
+  </div>
+
+  <!-- Q35 -->
+  <div class="question-card" id="card-35">
+    <div class="question-text"><span class="question-num">35</span>When parallel parking, your vehicle should be no more than how far from the curb?</div>
+    <div class="options">
+      <label><input type="radio" name="q35" value="A"> A) 12 inches</label>
+      <label><input type="radio" name="q35" value="B"> B) 18 inches</label>
+      <label><input type="radio" name="q35" value="C"> C) 24 inches</label>
+    </div>
+    <div class="feedback" id="fb-35"></div>
+  </div>
+
+  <!-- ===== SECTION 2 ===== -->
+  <div class="section-header">Section 2 — Signs, Signals &amp; Road Markings (Questions 36–65)</div>
+
+  <!-- Q36 -->
+  <div class="question-card" id="card-36">
+    <div class="question-text"><span class="question-num">36</span>A sign with a downward-pointing triangular shape means:</div>
+    <div class="options">
+      <label><input type="radio" name="q36" value="A"> A) Yield right-of-way</label>
+      <label><input type="radio" name="q36" value="B"> B) Speed and direction regulation</label>
+      <label><input type="radio" name="q36" value="C"> C) Railroad crossing</label>
+    </div>
+    <div class="feedback" id="fb-36"></div>
+  </div>
+
+  <!-- Q37 -->
+  <div class="question-card" id="card-37">
+    <div class="question-text"><span class="question-num">37</span>A red painted curb means you may:</div>
+    <div class="options">
+      <label><input type="radio" name="q37" value="A"> A) Stop to load or unload only</label>
+      <label><input type="radio" name="q37" value="B"> B) Not stop, stand, or park</label>
+      <label><input type="radio" name="q37" value="C"> C) Stop to pick up or drop off passengers only</label>
+    </div>
+    <div class="feedback" id="fb-37"></div>
+  </div>
+
+  <!-- Q38 -->
+  <div class="question-card" id="card-38">
+    <div class="question-text"><span class="question-num">38</span>A green lighted arrow on a traffic light means you may:</div>
+    <div class="options">
+      <label><input type="radio" name="q38" value="A"> A) Proceed in the direction of the arrow after a complete stop</label>
+      <label><input type="radio" name="q38" value="B"> B) Not proceed in the direction of the arrow</label>
+      <label><input type="radio" name="q38" value="C"> C) Proceed in the direction of the arrow without stopping</label>
+    </div>
+    <div class="feedback" id="fb-38"></div>
+  </div>
+
+  <!-- Q39 -->
+  <div class="question-card" id="card-39">
+    <div class="question-text"><span class="question-num">39</span>A sign with a diamond shape means:</div>
+    <div class="options">
+      <label><input type="radio" name="q39" value="A"> A) Warning</label>
+      <label><input type="radio" name="q39" value="B"> B) Railroad crossing</label>
+      <label><input type="radio" name="q39" value="C"> C) Yield right-of-way</label>
+    </div>
+    <div class="feedback" id="fb-39"></div>
+  </div>
+
+  <!-- Q40 -->
+  <div class="question-card" id="card-40">
+    <div class="question-text"><span class="question-num">40</span>You are approaching an intersection and the green arrow just changed to yellow. You should:</div>
+    <div class="options">
+      <label><input type="radio" name="q40" value="A"> A) Stop and wait for green</label>
+      <label><input type="radio" name="q40" value="B"> B) Slow down and turn with caution</label>
+      <label><input type="radio" name="q40" value="C"> C) May turn only if you can clear the intersection before red</label>
+    </div>
+    <div class="feedback" id="fb-40"></div>
+  </div>
+
+  <!-- Q41 -->
+  <div class="question-card" id="card-41">
+    <div class="question-text"><span class="question-num">41</span>Unless prohibited by a sign, a left turn on red is permitted:</div>
+    <div class="options">
+      <label><input type="radio" name="q41" value="A"> A) Except in school zones</label>
+      <label><input type="radio" name="q41" value="B"> B) From a two-way road to a one-way road</label>
+      <label><input type="radio" name="q41" value="C"> C) From a one-way road to a one-way road</label>
+    </div>
+    <div class="feedback" id="fb-41"></div>
+  </div>
+
+  <!-- Q42 -->
+  <div class="question-card" id="card-42">
+    <div class="question-text"><span class="question-num">42</span>A circular sign with a red slash through a U-turn arrow means:</div>
+    <div class="options">
+      <label><input type="radio" name="q42" value="A"> A) Wrong Way</label>
+      <label><input type="radio" name="q42" value="B"> B) U-turn is not permitted</label>
+      <label><input type="radio" name="q42" value="C"> C) Left turn is not permitted</label>
+    </div>
+    <div class="feedback" id="fb-42"></div>
+  </div>
+
+  <!-- Q43 -->
+  <div class="question-card" id="card-43">
+    <div class="question-text"><span class="question-num">43</span>A broken yellow line in the middle of the road means:</div>
+    <div class="options">
+      <label><input type="radio" name="q43" value="A"> A) No passing permitted in either direction</label>
+      <label><input type="radio" name="q43" value="B"> B) Passing is permitted in either direction when safe</label>
+      <label><input type="radio" name="q43" value="C"> C) School zone ahead</label>
+    </div>
+    <div class="feedback" id="fb-43"></div>
+  </div>
+
+  <!-- Q44 -->
+  <div class="question-card" id="card-44">
+    <div class="question-text"><span class="question-num">44</span>A sign showing a walking figure in a triangle means:</div>
+    <div class="options">
+      <label><input type="radio" name="q44" value="A"> A) Pedestrians prohibited</label>
+      <label><input type="radio" name="q44" value="B"> B) Pedestrian crossing</label>
+      <label><input type="radio" name="q44" value="C"> C) School crossing</label>
+    </div>
+    <div class="feedback" id="fb-44"></div>
+  </div>
+
+  <!-- Q45 -->
+  <div class="question-card" id="card-45">
+    <div class="question-text"><span class="question-num">45</span>A sign showing arrows splitting apart (divided highway) means:</div>
+    <div class="options">
+      <label><input type="radio" name="q45" value="A"> A) Divided highway ends</label>
+      <label><input type="radio" name="q45" value="B"> B) Lane ends ahead</label>
+      <label><input type="radio" name="q45" value="C"> C) Divided highway begins</label>
+    </div>
+    <div class="feedback" id="fb-45"></div>
+  </div>
+
+  <!-- Q46 -->
+  <div class="question-card" id="card-46">
+    <div class="question-text"><span class="question-num">46</span>A flashing red traffic light at an intersection means the same as:</div>
+    <div class="options">
+      <label><input type="radio" name="q46" value="A"> A) A Stop sign</label>
+      <label><input type="radio" name="q46" value="B"> B) The light is about to turn green</label>
+      <label><input type="radio" name="q46" value="C"> C) A solid red Stop light</label>
+    </div>
+    <div class="feedback" id="fb-46"></div>
+  </div>
+
+  <!-- Q47 -->
+  <div class="question-card" id="card-47">
+    <div class="question-text"><span class="question-num">47</span>A sign with a circular (round) shape means:</div>
+    <div class="options">
+      <label><input type="radio" name="q47" value="A"> A) Speed and direction regulation</label>
+      <label><input type="radio" name="q47" value="B"> B) Railroad warning</label>
+      <label><input type="radio" name="q47" value="C"> C) Stop</label>
+    </div>
+    <div class="feedback" id="fb-47"></div>
+  </div>
+
+  <!-- Q48 -->
+  <div class="question-card" id="card-48">
+    <div class="question-text"><span class="question-num">48</span>A yellow line in the middle of the road indicates:</div>
+    <div class="options">
+      <label><input type="radio" name="q48" value="A"> A) Two-way traffic</label>
+      <label><input type="radio" name="q48" value="B"> B) School zone</label>
+      <label><input type="radio" name="q48" value="C"> C) One-way traffic</label>
+    </div>
+    <div class="feedback" id="fb-48"></div>
+  </div>
+
+  <!-- Q49 -->
+  <div class="question-card" id="card-49">
+    <div class="question-text"><span class="question-num">49</span>A sign showing a sharp arrow curving to the left means:</div>
+    <div class="options">
+      <label><input type="radio" name="q49" value="A"> A) Road turns sharply to the left</label>
+      <label><input type="radio" name="q49" value="B"> B) No left turn permitted</label>
+      <label><input type="radio" name="q49" value="C"> C) Left lane must turn left</label>
+    </div>
+    <div class="feedback" id="fb-49"></div>
+  </div>
+
+  <!-- Q50 -->
+  <div class="question-card" id="card-50">
+    <div class="question-text"><span class="question-num">50</span>A broken yellow line alongside a solid yellow line means:</div>
+    <div class="options">
+      <label><input type="radio" name="q50" value="A"> A) You may pass if the solid line is on your side</label>
+      <label><input type="radio" name="q50" value="B"> B) You may pass if the broken line is on your side</label>
+      <label><input type="radio" name="q50" value="C"> C) No passing permitted in either direction</label>
+    </div>
+    <div class="feedback" id="fb-50"></div>
+  </div>
+
+  <!-- Q51 -->
+  <div class="question-card" id="card-51">
+    <div class="question-text"><span class="question-num">51</span>A sign with an octagonal (8-sided) shape means:</div>
+    <div class="options">
+      <label><input type="radio" name="q51" value="A"> A) Stop</label>
+      <label><input type="radio" name="q51" value="B"> B) Yield right-of-way</label>
+      <label><input type="radio" name="q51" value="C"> C) Speed limit</label>
+    </div>
+    <div class="feedback" id="fb-51"></div>
+  </div>
+
+  <!-- Q52 -->
+  <div class="question-card" id="card-52">
+    <div class="question-text"><span class="question-num">52</span>An orange sign with a construction worker figure means:</div>
+    <div class="options">
+      <label><input type="radio" name="q52" value="A"> A) Pedestrian crossing</label>
+      <label><input type="radio" name="q52" value="B"> B) School crossing</label>
+      <label><input type="radio" name="q52" value="C"> C) Construction workers ahead</label>
+    </div>
+    <div class="feedback" id="fb-52"></div>
+  </div>
+
+  <!-- Q53 -->
+  <div class="question-card" id="card-53">
+    <div class="question-text"><span class="question-num">53</span>You are approaching an intersection and the traffic light just turned yellow. You should:</div>
+    <div class="options">
+      <label><input type="radio" name="q53" value="A"> A) Slow down and proceed with caution</label>
+      <label><input type="radio" name="q53" value="B"> B) Stop and wait for green</label>
+      <label><input type="radio" name="q53" value="C"> C) May proceed only if you can clear the intersection before red</label>
+    </div>
+    <div class="feedback" id="fb-53"></div>
+  </div>
+
+  <!-- Q54 -->
+  <div class="question-card" id="card-54">
+    <div class="question-text"><span class="question-num">54</span>A sign showing a sharp arrow curving to the right means:</div>
+    <div class="options">
+      <label><input type="radio" name="q54" value="A"> A) Road turns sharply to the right</label>
+      <label><input type="radio" name="q54" value="B"> B) No right turn permitted</label>
+      <label><input type="radio" name="q54" value="C"> C) Left lane must turn right</label>
+    </div>
+    <div class="feedback" id="fb-54"></div>
+  </div>
+
+  <!-- Q55 -->
+  <div class="question-card" id="card-55">
+    <div class="question-text"><span class="question-num">55</span>A sign showing arrows coming together from two lanes means:</div>
+    <div class="options">
+      <label><input type="radio" name="q55" value="A"> A) Two lanes ahead</label>
+      <label><input type="radio" name="q55" value="B"> B) Divided highway begins</label>
+      <label><input type="radio" name="q55" value="C"> C) Traffic merging ahead</label>
+    </div>
+    <div class="feedback" id="fb-55"></div>
+  </div>
+
+  <!-- Q56 -->
+  <div class="question-card" id="card-56">
+    <div class="question-text"><span class="question-num">56</span>A broken white line in the middle of the road means:</div>
+    <div class="options">
+      <label><input type="radio" name="q56" value="A"> A) Traffic on both sides moving in the same direction</label>
+      <label><input type="radio" name="q56" value="B"> B) No passing in either direction</label>
+      <label><input type="radio" name="q56" value="C"> C) Traffic moving in opposite directions</label>
+    </div>
+    <div class="feedback" id="fb-56"></div>
+  </div>
+
+  <!-- Q57 -->
+  <div class="question-card" id="card-57">
+    <div class="question-text"><span class="question-num">57</span>A lane-ends sign (lane narrowing to one side) means:</div>
+    <div class="options">
+      <label><input type="radio" name="q57" value="A"> A) Lane ends — merge with adjacent lane</label>
+      <label><input type="radio" name="q57" value="B"> B) Traffic merging from another road</label>
+      <label><input type="radio" name="q57" value="C"> C) Left lane must go straight</label>
+    </div>
+    <div class="feedback" id="fb-57"></div>
+  </div>
+
+  <!-- Q58 -->
+  <div class="question-card" id="card-58">
+    <div class="question-text"><span class="question-num">58</span>A flashing red traffic light at an intersection means you must:</div>
+    <div class="options">
+      <label><input type="radio" name="q58" value="A"> A) Stop and wait for the light to turn green</label>
+      <label><input type="radio" name="q58" value="B"> B) Slow down, check for traffic, then proceed with caution</label>
+      <label><input type="radio" name="q58" value="C"> C) Stop, check for traffic, then proceed with caution</label>
+    </div>
+    <div class="feedback" id="fb-58"></div>
+  </div>
+
+  <!-- Q59 -->
+  <div class="question-card" id="card-59">
+    <div class="question-text"><span class="question-num">59</span>A pennant-shaped (triangular) sign on the left side of the road means:</div>
+    <div class="options">
+      <label><input type="radio" name="q59" value="A"> A) Right turn permitted on red</label>
+      <label><input type="radio" name="q59" value="B"> B) No passing zone</label>
+      <label><input type="radio" name="q59" value="C"> C) Railroad crossing</label>
+    </div>
+    <div class="feedback" id="fb-59"></div>
+  </div>
+
+  <!-- Q60 -->
+  <div class="question-card" id="card-60">
+    <div class="question-text"><span class="question-num">60</span>An inverted (upside-down) triangular sign means:</div>
+    <div class="options">
+      <label><input type="radio" name="q60" value="A"> A) Railroad crossing</label>
+      <label><input type="radio" name="q60" value="B"> B) Yield right-of-way</label>
+      <label><input type="radio" name="q60" value="C"> C) Stop</label>
+    </div>
+    <div class="feedback" id="fb-60"></div>
+  </div>
+
+  <!-- Q61 -->
+  <div class="question-card" id="card-61">
+    <div class="question-text"><span class="question-num">61</span>A right turn on red is allowed:</div>
+    <div class="options">
+      <label><input type="radio" name="q61" value="A"> A) Only where indicated by a sign</label>
+      <label><input type="radio" name="q61" value="B"> B) Except where prohibited by a sign</label>
+      <label><input type="radio" name="q61" value="C"> C) Only on a divided road</label>
+    </div>
+    <div class="feedback" id="fb-61"></div>
+  </div>
+
+  <!-- Q62 -->
+  <div class="question-card" id="card-62">
+    <div class="question-text"><span class="question-num">62</span>A flashing yellow light at an intersection means you must:</div>
+    <div class="options">
+      <label><input type="radio" name="q62" value="A"> A) Stop and wait for the light to turn green</label>
+      <label><input type="radio" name="q62" value="B"> B) Stop, check for traffic, then proceed with caution</label>
+      <label><input type="radio" name="q62" value="C"> C) Slow down, check for traffic, then proceed with caution</label>
+    </div>
+    <div class="feedback" id="fb-62"></div>
+  </div>
+
+  <!-- Q63 -->
+  <div class="question-card" id="card-63">
+    <div class="question-text"><span class="question-num">63</span>A lane sign showing arrows pointing left and straight ahead means:</div>
+    <div class="options">
+      <label><input type="radio" name="q63" value="A"> A) You may turn left or go straight</label>
+      <label><input type="radio" name="q63" value="B"> B) Merging traffic ahead</label>
+      <label><input type="radio" name="q63" value="C"> C) Divided highway</label>
+    </div>
+    <div class="feedback" id="fb-63"></div>
+  </div>
+
+  <!-- Q64 -->
+  <div class="question-card" id="card-64">
+    <div class="question-text"><span class="question-num">64</span>A red lighted arrow on a traffic light means:</div>
+    <div class="options">
+      <label><input type="radio" name="q64" value="A"> A) No turn permitted in that direction</label>
+      <label><input type="radio" name="q64" value="B"> B) Stop, check for traffic, and turn with caution</label>
+      <label><input type="radio" name="q64" value="C"> C) Stop and wait for the arrow to change before turning</label>
+    </div>
+    <div class="feedback" id="fb-64"></div>
+  </div>
+
+  <!-- Q65 -->
+  <div class="question-card" id="card-65">
+    <div class="question-text"><span class="question-num">65</span>A double solid yellow line in the middle of the road means:</div>
+    <div class="options">
+      <label><input type="radio" name="q65" value="A"> A) You are permitted to pass</label>
+      <label><input type="radio" name="q65" value="B"> B) No passing in either direction</label>
+      <label><input type="radio" name="q65" value="C"> C) Curve ahead</label>
+    </div>
+    <div class="feedback" id="fb-65"></div>
+  </div>
+
+  <!-- ===== SECTION 3 ===== -->
+  <div class="section-header">Section 3 — Safe Driving &amp; DUI Laws (Questions 66–95)</div>
+
+  <!-- Q66 -->
+  <div class="question-card" id="card-66">
+    <div class="question-text"><span class="question-num">66</span>When following a vehicle at night, you should lower your high beam headlights when you are within:</div>
+    <div class="options">
+      <label><input type="radio" name="q66" value="A"> A) 300 feet</label>
+      <label><input type="radio" name="q66" value="B"> B) 100 feet</label>
+      <label><input type="radio" name="q66" value="C"> C) 200 feet</label>
+    </div>
+    <div class="feedback" id="fb-66"></div>
+  </div>
+
+  <!-- Q67 -->
+  <div class="question-card" id="card-67">
+    <div class="question-text"><span class="question-num">67</span>When entering a freeway, you should NOT:</div>
+    <div class="options">
+      <label><input type="radio" name="q67" value="A"> A) Use your turn signal</label>
+      <label><input type="radio" name="q67" value="B"> B) Match the speed of traffic in the right lane</label>
+      <label><input type="radio" name="q67" value="C"> C) Cross a solid white line</label>
+    </div>
+    <div class="feedback" id="fb-67"></div>
+  </div>
+
+  <!-- Q68 -->
+  <div class="question-card" id="card-68">
+    <div class="question-text"><span class="question-num">68</span>To avoid glare from oncoming headlights at night, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q68" value="A"> A) Focus your eyes on the center line</label>
+      <label><input type="radio" name="q68" value="B"> B) Glance back and forth between the side of the road and ahead</label>
+      <label><input type="radio" name="q68" value="C"> C) Focus your eyes on the right edge of the road</label>
+    </div>
+    <div class="feedback" id="fb-68"></div>
+  </div>
+
+  <!-- Q69 -->
+  <div class="question-card" id="card-69">
+    <div class="question-text"><span class="question-num">69</span>If your vehicle begins to hydroplane, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q69" value="A"> A) Release the accelerator</label>
+      <label><input type="radio" name="q69" value="B"> B) Pull off the road immediately</label>
+      <label><input type="radio" name="q69" value="C"> C) Pump the brakes</label>
+    </div>
+    <div class="feedback" id="fb-69"></div>
+  </div>
+
+  <!-- Q70 -->
+  <div class="question-card" id="card-70">
+    <div class="question-text"><span class="question-num">70</span>You should avoid the right lane of a freeway during rush hour:</div>
+    <div class="options">
+      <label><input type="radio" name="q70" value="A"> A) To allow emergency vehicles to pass</label>
+      <label><input type="radio" name="q70" value="B"> B) Because it is the most likely place for accidents</label>
+      <label><input type="radio" name="q70" value="C"> C) To leave room for vehicles entering and exiting</label>
+    </div>
+    <div class="feedback" id="fb-70"></div>
+  </div>
+
+  <!-- Q71 -->
+  <div class="question-card" id="card-71">
+    <div class="question-text"><span class="question-num">71</span>You must switch to low beams when oncoming traffic is within:</div>
+    <div class="options">
+      <label><input type="radio" name="q71" value="A"> A) 750 feet</label>
+      <label><input type="radio" name="q71" value="B"> B) 300 feet</label>
+      <label><input type="radio" name="q71" value="C"> C) 500 feet</label>
+    </div>
+    <div class="feedback" id="fb-71"></div>
+  </div>
+
+  <!-- Q72 -->
+  <div class="question-card" id="card-72">
+    <div class="question-text"><span class="question-num">72</span>When driving on wet roads, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q72" value="A"> A) Reduce your speed</label>
+      <label><input type="radio" name="q72" value="B"> B) Pump your brakes occasionally</label>
+      <label><input type="radio" name="q72" value="C"> C) Switch to low beam headlights</label>
+    </div>
+    <div class="feedback" id="fb-72"></div>
+  </div>
+
+  <!-- Q73 -->
+  <div class="question-card" id="card-73">
+    <div class="question-text"><span class="question-num">73</span>If you have a tire blowout while driving, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q73" value="A"> A) Pump the brakes rapidly and pull off the road</label>
+      <label><input type="radio" name="q73" value="B"> B) Do not brake — slow down gradually and pull off the road</label>
+      <label><input type="radio" name="q73" value="C"> C) Turn the wheel in the direction of the skid</label>
+    </div>
+    <div class="feedback" id="fb-73"></div>
+  </div>
+
+  <!-- Q74 -->
+  <div class="question-card" id="card-74">
+    <div class="question-text"><span class="question-num">74</span>If you drive in fog, you should use:</div>
+    <div class="options">
+      <label><input type="radio" name="q74" value="A"> A) Low beam headlights</label>
+      <label><input type="radio" name="q74" value="B"> B) Parking lights</label>
+      <label><input type="radio" name="q74" value="C"> C) High beam headlights</label>
+    </div>
+    <div class="feedback" id="fb-74"></div>
+  </div>
+
+  <!-- Q75 -->
+  <div class="question-card" id="card-75">
+    <div class="question-text"><span class="question-num">75</span>If you come upon a severe dust storm, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q75" value="A"> A) Maintain your speed and don't change lanes</label>
+      <label><input type="radio" name="q75" value="B"> B) Turn on your headlights only</label>
+      <label><input type="radio" name="q75" value="C"> C) Reduce speed and pull completely off the road</label>
+    </div>
+    <div class="feedback" id="fb-75"></div>
+  </div>
+
+  <!-- Q76 -->
+  <div class="question-card" id="card-76">
+    <div class="question-text"><span class="question-num">76</span>When merging onto a freeway, you should be driving:</div>
+    <div class="options">
+      <label><input type="radio" name="q76" value="A"> A) At the posted speed limit of the freeway</label>
+      <label><input type="radio" name="q76" value="B"> B) At the same speed as traffic in the right lane</label>
+      <label><input type="radio" name="q76" value="C"> C) About 10 mph slower than the speed limit</label>
+    </div>
+    <div class="feedback" id="fb-76"></div>
+  </div>
+
+  <!-- Q77 -->
+  <div class="question-card" id="card-77">
+    <div class="question-text"><span class="question-num">77</span>The best way to bring your vehicle out of a skid is to:</div>
+    <div class="options">
+      <label><input type="radio" name="q77" value="A"> A) Turn the wheel in the direction of the skid</label>
+      <label><input type="radio" name="q77" value="B"> B) Turn the wheel away from the direction of the skid</label>
+      <label><input type="radio" name="q77" value="C"> C) Pump the brakes</label>
+    </div>
+    <div class="feedback" id="fb-77"></div>
+  </div>
+
+  <!-- Q78 -->
+  <div class="question-card" id="card-78">
+    <div class="question-text"><span class="question-num">78</span>You should leave enough space between you and the vehicle ahead to:</div>
+    <div class="options">
+      <label><input type="radio" name="q78" value="A"> A) Stay out of the other driver's blind spot</label>
+      <label><input type="radio" name="q78" value="B"> B) So the other driver can see both your headlights in their rearview mirror</label>
+      <label><input type="radio" name="q78" value="C"> C) Allow for a sudden stop</label>
+    </div>
+    <div class="feedback" id="fb-78"></div>
+  </div>
+
+  <!-- Q79 -->
+  <div class="question-card" id="card-79">
+    <div class="question-text"><span class="question-num">79</span>When changing lanes, after checking your mirrors you should also:</div>
+    <div class="options">
+      <label><input type="radio" name="q79" value="A"> A) Slow down by at least one third</label>
+      <label><input type="radio" name="q79" value="B"> B) Check only the inside rearview mirror again</label>
+      <label><input type="radio" name="q79" value="C"> C) Turn your head and look over your shoulder</label>
+    </div>
+    <div class="feedback" id="fb-79"></div>
+  </div>
+
+  <!-- Q80 -->
+  <div class="question-card" id="card-80">
+    <div class="question-text"><span class="question-num">80</span>To keep aware of the position of traffic behind you, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q80" value="A"> A) Turn your head and look out the rear window frequently</label>
+      <label><input type="radio" name="q80" value="B"> B) Check your rearview mirror often</label>
+      <label><input type="radio" name="q80" value="C"> C) Create a large space cushion all around you</label>
+    </div>
+    <div class="feedback" id="fb-80"></div>
+  </div>
+
+  <!-- Q81 -->
+  <div class="question-card" id="card-81">
+    <div class="question-text"><span class="question-num">81</span>The minimum safe following distance from the vehicle ahead should be at least:</div>
+    <div class="options">
+      <label><input type="radio" name="q81" value="A"> A) 5 seconds</label>
+      <label><input type="radio" name="q81" value="B"> B) 3 seconds</label>
+      <label><input type="radio" name="q81" value="C"> C) 2 seconds</label>
+    </div>
+    <div class="feedback" id="fb-81"></div>
+  </div>
+
+  <!-- Q82 -->
+  <div class="question-card" id="card-82">
+    <div class="question-text"><span class="question-num">82</span>If you come to an intersection where your view to the side is blocked, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q82" value="A"> A) Stop, then inch forward until you can see clearly in both directions</label>
+      <label><input type="radio" name="q82" value="B"> B) Maintain speed and look both ways</label>
+      <label><input type="radio" name="q82" value="C"> C) Slow down and look both ways</label>
+    </div>
+    <div class="feedback" id="fb-82"></div>
+  </div>
+
+  <!-- Q83 -->
+  <div class="question-card" id="card-83">
+    <div class="question-text"><span class="question-num">83</span>You are required by law to notify the Motor Vehicle Division of a change of address within:</div>
+    <div class="options">
+      <label><input type="radio" name="q83" value="A"> A) 10 days</label>
+      <label><input type="radio" name="q83" value="B"> B) 30 days</label>
+      <label><input type="radio" name="q83" value="C"> C) 6 months</label>
+    </div>
+    <div class="feedback" id="fb-83"></div>
+  </div>
+
+  <!-- Q84 -->
+  <div class="question-card" id="card-84">
+    <div class="question-text"><span class="question-num">84</span>Penalties for a first DUI conviction in Arizona include:</div>
+    <div class="options">
+      <label><input type="radio" name="q84" value="A"> A) 90 days jail, $3,000 fine, alcohol treatment, community service, and ignition interlock</label>
+      <label><input type="radio" name="q84" value="B"> B) 10 days jail, $1,250 fine, alcohol treatment, community service, and ignition interlock</label>
+      <label><input type="radio" name="q84" value="C"> C) 30 days jail, $1,500 fine, alcohol treatment, community service, and ignition interlock</label>
+    </div>
+    <div class="feedback" id="fb-84"></div>
+  </div>
+
+  <!-- Q85 -->
+  <div class="question-card" id="card-85">
+    <div class="question-text"><span class="question-num">85</span>Penalties for a second conviction for driving under the extreme influence include:</div>
+    <div class="options">
+      <label><input type="radio" name="q85" value="A"> A) 30 days jail, $750, 1-year revocation, alcohol treatment, community service, and ignition interlock</label>
+      <label><input type="radio" name="q85" value="B"> B) 60 days jail, $1,500, 90-day suspension, alcohol treatment, community service, and ignition interlock</label>
+      <label><input type="radio" name="q85" value="C"> C) 120 days jail, $3,250, 1-year revocation, alcohol treatment, community service, and ignition interlock</label>
+    </div>
+    <div class="feedback" id="fb-85"></div>
+  </div>
+
+  <!-- Q86 -->
+  <div class="question-card" id="card-86">
+    <div class="question-text"><span class="question-num">86</span>You are driving under the influence if your blood alcohol concentration (BAC) is:</div>
+    <div class="options">
+      <label><input type="radio" name="q86" value="A"> A) 0.08% or above (0.04% if operating a commercial vehicle)</label>
+      <label><input type="radio" name="q86" value="B"> B) 0.80% or above (0.40% if commercial vehicle)</label>
+      <label><input type="radio" name="q86" value="C"> C) 0.10% or above (0.04% if commercial vehicle)</label>
+    </div>
+    <div class="feedback" id="fb-86"></div>
+  </div>
+
+  <!-- Q87 -->
+  <div class="question-card" id="card-87">
+    <div class="question-text"><span class="question-num">87</span>If you are under age 21, your license may be suspended if your BAC is:</div>
+    <div class="options">
+      <label><input type="radio" name="q87" value="A"> A) 0.10% or above</label>
+      <label><input type="radio" name="q87" value="B"> B) 0.05% or above</label>
+      <label><input type="radio" name="q87" value="C"> C) Any detectable amount</label>
+    </div>
+    <div class="feedback" id="fb-87"></div>
+  </div>
+
+  <!-- Q88 -->
+  <div class="question-card" id="card-88">
+    <div class="question-text"><span class="question-num">88</span>You are driving under the extreme influence if your BAC is:</div>
+    <div class="options">
+      <label><input type="radio" name="q88" value="A"> A) 0.18% or above</label>
+      <label><input type="radio" name="q88" value="B"> B) 0.28% or above</label>
+      <label><input type="radio" name="q88" value="C"> C) 0.15% or above</label>
+    </div>
+    <div class="feedback" id="fb-88"></div>
+  </div>
+
+  <!-- Q89 -->
+  <div class="question-card" id="card-89">
+    <div class="question-text"><span class="question-num">89</span>Bicyclists should:</div>
+    <div class="options">
+      <label><input type="radio" name="q89" value="A"> A) Ride facing oncoming traffic</label>
+      <label><input type="radio" name="q89" value="B"> B) Ride with the flow of traffic</label>
+      <label><input type="radio" name="q89" value="C"> C) Ride on the sidewalk</label>
+    </div>
+    <div class="feedback" id="fb-89"></div>
+  </div>
+
+  <!-- Q90 -->
+  <div class="question-card" id="card-90">
+    <div class="question-text"><span class="question-num">90</span>When passing a bicycle traveling in the same direction, you must leave a distance of at least:</div>
+    <div class="options">
+      <label><input type="radio" name="q90" value="A"> A) 3 feet</label>
+      <label><input type="radio" name="q90" value="B"> B) 6 feet</label>
+      <label><input type="radio" name="q90" value="C"> C) 10 feet</label>
+    </div>
+    <div class="feedback" id="fb-90"></div>
+  </div>
+
+  <!-- Q91 -->
+  <div class="question-card" id="card-91">
+    <div class="question-text"><span class="question-num">91</span>Bicyclists must:</div>
+    <div class="options">
+      <label><input type="radio" name="q91" value="A"> A) Stay in the right lane at all times</label>
+      <label><input type="radio" name="q91" value="B"> B) Obey the same traffic laws as motor vehicles</label>
+      <label><input type="radio" name="q91" value="C"> C) Never pass motor vehicles</label>
+    </div>
+    <div class="feedback" id="fb-91"></div>
+  </div>
+
+  <!-- Q92 -->
+  <div class="question-card" id="card-92">
+    <div class="question-text"><span class="question-num">92</span>It is illegal to follow fire vehicles traveling in response to an alarm within:</div>
+    <div class="options">
+      <label><input type="radio" name="q92" value="A"> A) 200 feet</label>
+      <label><input type="radio" name="q92" value="B"> B) 300 feet</label>
+      <label><input type="radio" name="q92" value="C"> C) 500 feet</label>
+    </div>
+    <div class="feedback" id="fb-92"></div>
+  </div>
+
+  <!-- Q93 -->
+  <div class="question-card" id="card-93">
+    <div class="question-text"><span class="question-num">93</span>The Arizona Distracted Driver law prohibits:</div>
+    <div class="options">
+      <label><input type="radio" name="q93" value="A"> A) Holding or supporting a wireless device while driving</label>
+      <label><input type="radio" name="q93" value="B"> B) Having another person in your car</label>
+      <label><input type="radio" name="q93" value="C"> C) Chewing gum while driving</label>
+    </div>
+    <div class="feedback" id="fb-93"></div>
+  </div>
+
+  <!-- Q94 -->
+  <div class="question-card" id="card-94">
+    <div class="question-text"><span class="question-num">94</span>When approaching a railroad crossing with flashing lights but no gate, you should:</div>
+    <div class="options">
+      <label><input type="radio" name="q94" value="A"> A) Slow down and proceed carefully</label>
+      <label><input type="radio" name="q94" value="B"> B) Stop and wait for the lights to stop flashing before proceeding</label>
+      <label><input type="radio" name="q94" value="C"> C) Stop, look both ways, and proceed only when safe</label>
+    </div>
+    <div class="feedback" id="fb-94"></div>
+  </div>
+
+  <!-- Q95 -->
+  <div class="question-card" id="card-95">
+    <div class="question-text"><span class="question-num">95</span>In Arizona, you may legally make a U-turn:</div>
+    <div class="options">
+      <label><input type="radio" name="q95" value="A"> A) Anywhere it is safe to do so unless prohibited by a sign</label>
+      <label><input type="radio" name="q95" value="B"> B) Only at intersections with a traffic light</label>
+      <label><input type="radio" name="q95" value="C"> C) Only in residential areas</label>
+    </div>
+    <div class="feedback" id="fb-95"></div>
+  </div>
+
+  <div class="controls">
+    <button type="button" id="btn-submit">Check My Answers</button>
+    <button type="button" id="btn-reset">Start Over</button>
+  </div>
+
+</form>
+
+<!-- Quick Reference -->
+<div class="ref-box">
+  <h2>📋 Quick Reference — Key Numbers</h2>
+  <table>
+    <tr><th>Rule</th><th>Value</th></tr>
+    <tr><td>School crosswalk speed limit</td><td><strong>15 mph</strong></td></tr>
+    <tr><td>Max speed in residential / business area (unposted)</td><td><strong>25 mph</strong></td></tr>
+    <tr><td>Signal before turning</td><td><strong>100 feet</strong></td></tr>
+    <tr><td>Minimum following distance</td><td><strong>3 seconds</strong></td></tr>
+    <tr><td>Dim high beams for oncoming vehicles</td><td><strong>500 feet</strong></td></tr>
+    <tr><td>Dim high beams when following a vehicle</td><td><strong>300 feet</strong></td></tr>
+    <tr><td>Do NOT follow fire vehicles within</td><td><strong>500 feet</strong></td></tr>
+    <tr><td>Do not park within ___ of a crosswalk</td><td><strong>20 feet</strong></td></tr>
+    <tr><td>Do not park within ___ of a fire hydrant</td><td><strong>15 feet</strong></td></tr>
+    <tr><td>DUI BAC threshold (standard)</td><td><strong>0.08%</strong> (0.04% commercial)</td></tr>
+    <tr><td>Extreme DUI BAC threshold</td><td><strong>0.15%</strong></td></tr>
+    <tr><td>Under 21 — zero tolerance BAC</td><td><strong>Any detectable amount</strong></td></tr>
+    <tr><td>Clearance when passing a bicycle</td><td><strong>3 feet</strong></td></tr>
+    <tr><td>Notify MVD of address change within</td><td><strong>10 days</strong></td></tr>
+  </table>
+</div>
+
+<script>
+  // correct answers keyed by question number
+  const answers = {
+    1:'A', 2:'C', 3:'B', 4:'A', 5:'C',
+    6:'C', 7:'A', 8:'C', 9:'B', 10:'A',
+    11:'C', 12:'B', 13:'A', 14:'B', 15:'A',
+    16:'B', 17:'C', 18:'A', 19:'C', 20:'C',
+    21:'A', 22:'A', 23:'A', 24:'A', 25:'A',
+    26:'A', 27:'B', 28:'A', 29:'A', 30:'C',
+    31:'C', 32:'C', 33:'A', 34:'B', 35:'B',
+    36:'A', 37:'B', 38:'C', 39:'A', 40:'C',
+    41:'C', 42:'B', 43:'B', 44:'B', 45:'C',
+    46:'A', 47:'B', 48:'A', 49:'A', 50:'B',
+    51:'A', 52:'C', 53:'C', 54:'A', 55:'C',
+    56:'A', 57:'A', 58:'C', 59:'B', 60:'B',
+    61:'B', 62:'C', 63:'A', 64:'C', 65:'B',
+    66:'A', 67:'C', 68:'C', 69:'A', 70:'C',
+    71:'C', 72:'A', 73:'B', 74:'A', 75:'C',
+    76:'B', 77:'A', 78:'C', 79:'C', 80:'B',
+    81:'B', 82:'A', 83:'A', 84:'B', 85:'C',
+    86:'A', 87:'C', 88:'C', 89:'B', 90:'A',
+    91:'B', 92:'C', 93:'A', 94:'C', 95:'A'
+  };
+
+  const total = Object.keys(answers).length;
+
+  document.getElementById('btn-submit').addEventListener('click', function () {
+    let correct = 0, wrong = 0, skipped = 0;
+
+    for (let q = 1; q <= total; q++) {
+      const card = document.getElementById('card-' + q);
+      const fb   = document.getElementById('fb-' + q);
+      const selected = document.querySelector(`input[name="q${q}"]:checked`);
+      const correctAns = answers[q];
+
+      // clear prior state
+      card.classList.remove('correct', 'incorrect', 'skipped');
+      fb.className = 'feedback';
+      fb.textContent = '';
+
+      // unhighlight all labels for this question
+      document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
+        r.parentElement.classList.remove('correct-answer', 'wrong-answer');
+      });
+
+      if (!selected) {
+        skipped++;
+        card.classList.add('skipped');
+        fb.classList.add('skipped');
+        fb.textContent = `⚠️ Skipped — correct answer: ${correctAns}`;
+        // highlight correct
+        document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
+      } else if (selected.value === correctAns) {
+        correct++;
+        card.classList.add('correct');
+        fb.classList.add('correct');
+        fb.textContent = '✅ Correct!';
+        selected.parentElement.classList.add('correct-answer');
+      } else {
+        wrong++;
+        card.classList.add('incorrect');
+        fb.classList.add('incorrect');
+        fb.textContent = `❌ Incorrect — correct answer: ${correctAns}`;
+        selected.parentElement.classList.add('wrong-answer');
+        document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
+      }
+    }
+
+    const pct = Math.round((correct / total) * 100);
+    const scoreBox = document.getElementById('score-box');
+    scoreBox.style.display = 'block';
+    document.getElementById('score-pct').textContent = pct + '%';
+    document.getElementById('score-fraction').textContent = `${correct} / ${total} correct`;
+    document.getElementById('cnt-correct').textContent = correct;
+    document.getElementById('cnt-wrong').textContent = wrong;
+    document.getElementById('cnt-skip').textContent = skipped;
+
+    const msg = document.getElementById('pass-msg');
+    if (pct >= 80) {
+      msg.textContent = '🎉 Passing score! Great work!';
+      msg.className = 'pass-msg pass';
+    } else {
+      msg.textContent = `Keep studying — you need 80% to pass (${Math.ceil(total * 0.8)} correct).`;
+      msg.className = 'pass-msg fail';
+    }
+
+    scoreBox.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    document.getElementById('test-form').reset();
+    for (let q = 1; q <= total; q++) {
+      const card = document.getElementById('card-' + q);
+      const fb   = document.getElementById('fb-' + q);
+      card.classList.remove('correct', 'incorrect', 'skipped');
+      fb.className = 'feedback';
+      fb.textContent = '';
+      document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
+        r.parentElement.classList.remove('correct-answer', 'wrong-answer');
+      });
+    }
+    const scoreBox = document.getElementById('score-box');
+    scoreBox.style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
