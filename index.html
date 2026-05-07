@@ -222,6 +222,17 @@
   </div>
 </header>
 
+<!-- Live score bar -->
+<div id="live-bar" style="background:white;border-radius:10px;padding:14px 24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+  <div style="font-weight:700;color:#1a3a5c;font-size:1rem;">Live Score</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div style="text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#16a34a;" id="live-correct">0</div><div style="font-size:0.75rem;color:#64748b;">Correct</div></div>
+    <div style="text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#dc2626;" id="live-wrong">0</div><div style="font-size:0.75rem;color:#64748b;">Incorrect</div></div>
+    <div style="text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#2563eb;" id="live-pct">--</div><div style="font-size:0.75rem;color:#64748b;">Score</div></div>
+    <div style="text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:#64748b;" id="live-done">0 / 95</div><div style="font-size:0.75rem;color:#64748b;">Answered</div></div>
+  </div>
+</div>
+
 <div id="score-box">
   <h2>Your Results</h2>
   <div class="score-big" id="score-pct">--</div>
@@ -1400,7 +1411,7 @@
   </div>
 
   <div class="controls">
-    <button type="button" id="btn-submit">Check My Answers</button>
+    <button type="button" id="btn-submit">See Final Score</button>
     <button type="button" id="btn-reset">Start Over</button>
   </div>
 
@@ -1453,46 +1464,77 @@
   };
 
   const total = Object.keys(answers).length;
+  const answered = {}; // tracks which questions have been answered
 
+  function updateLiveScore() {
+    let correct = 0, wrong = 0;
+    for (const q in answered) {
+      if (answered[q] === 'correct') correct++;
+      else wrong++;
+    }
+    const done = correct + wrong;
+    document.getElementById('live-correct').textContent = correct;
+    document.getElementById('live-wrong').textContent = wrong;
+    document.getElementById('live-done').textContent = done + ' / ' + total;
+    const pct = done > 0 ? Math.round((correct / done) * 100) : 0;
+    document.getElementById('live-pct').textContent = done > 0 ? pct + '%' : '--';
+  }
+
+  function gradeQuestion(q) {
+    if (answered[q]) return; // already graded — don't re-grade
+    const card = document.getElementById('card-' + q);
+    const fb   = document.getElementById('fb-' + q);
+    const selected = document.querySelector(`input[name="q${q}"]:checked`);
+    const correctAns = answers[q];
+    if (!selected) return;
+
+    // lock radios
+    document.querySelectorAll(`input[name="q${q}"]`).forEach(r => r.disabled = true);
+
+    if (selected.value === correctAns) {
+      answered[q] = 'correct';
+      card.classList.add('correct');
+      fb.classList.add('correct');
+      fb.textContent = '✅ Correct!';
+      selected.parentElement.classList.add('correct-answer');
+    } else {
+      answered[q] = 'wrong';
+      card.classList.add('incorrect');
+      fb.classList.add('incorrect');
+      fb.textContent = `❌ Incorrect — correct answer: ${correctAns}`;
+      selected.parentElement.classList.add('wrong-answer');
+      document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
+    }
+    updateLiveScore();
+  }
+
+  // attach instant-feedback listener to every radio button
+  for (let q = 1; q <= total; q++) {
+    document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
+      r.addEventListener('change', () => gradeQuestion(q));
+    });
+  }
+
+  // "See Final Score" button — grades any skipped questions and shows summary
   document.getElementById('btn-submit').addEventListener('click', function () {
     let correct = 0, wrong = 0, skipped = 0;
 
     for (let q = 1; q <= total; q++) {
-      const card = document.getElementById('card-' + q);
-      const fb   = document.getElementById('fb-' + q);
-      const selected = document.querySelector(`input[name="q${q}"]:checked`);
-      const correctAns = answers[q];
-
-      // clear prior state
-      card.classList.remove('correct', 'incorrect', 'skipped');
-      fb.className = 'feedback';
-      fb.textContent = '';
-
-      // unhighlight all labels for this question
-      document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
-        r.parentElement.classList.remove('correct-answer', 'wrong-answer');
-      });
-
-      if (!selected) {
+      if (!answered[q]) {
+        // unanswered — show as skipped
+        const card = document.getElementById('card-' + q);
+        const fb   = document.getElementById('fb-' + q);
+        const correctAns = answers[q];
         skipped++;
         card.classList.add('skipped');
         fb.classList.add('skipped');
         fb.textContent = `⚠️ Skipped — correct answer: ${correctAns}`;
-        // highlight correct
         document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
-      } else if (selected.value === correctAns) {
+        document.querySelectorAll(`input[name="q${q}"]`).forEach(r => r.disabled = true);
+      } else if (answered[q] === 'correct') {
         correct++;
-        card.classList.add('correct');
-        fb.classList.add('correct');
-        fb.textContent = '✅ Correct!';
-        selected.parentElement.classList.add('correct-answer');
       } else {
         wrong++;
-        card.classList.add('incorrect');
-        fb.classList.add('incorrect');
-        fb.textContent = `❌ Incorrect — correct answer: ${correctAns}`;
-        selected.parentElement.classList.add('wrong-answer');
-        document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
       }
     }
 
@@ -1527,10 +1569,13 @@
       fb.textContent = '';
       document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
         r.parentElement.classList.remove('correct-answer', 'wrong-answer');
+        r.disabled = false;
       });
+      delete answered[q];
     }
     const scoreBox = document.getElementById('score-box');
     scoreBox.style.display = 'none';
+    updateLiveScore();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
