@@ -171,15 +171,69 @@ button{cursor:pointer;font-family:inherit}
 /* dark mode toggle */
 .dark-toggle{font-size:1rem}
 
+/* ── TABLET (iPad, 641–1024px) ── */
+@media(min-width:641px) and (max-width:1024px){
+  .start-card,.history-card{max-width:100%;margin-left:16px;margin-right:16px}
+  .nav-panel{width:160px}
+  .nav-grid{grid-template-columns:repeat(5,1fr)}
+  .question-area{padding:20px 24px}
+  .score-grid{grid-template-columns:repeat(4,1fr)}
+  .res-body{padding:20px 24px}
+  .res-card{max-width:100%;margin-left:16px;margin-right:16px}
+  .q-actions{gap:8px}
+  .btn-nav,.btn-submit-test{padding:12px 18px;font-size:.88rem}
+  /* larger tap targets */
+  .opt{padding:14px 16px;min-height:52px}
+  .nav-dot{width:28px;height:28px}
+}
+
+/* ── MOBILE (phones, ≤640px) ── */
 @media(max-width:640px){
-  .test-body{flex-direction:column}
-  .nav-panel{width:100%;border-right:none;border-bottom:1px solid var(--border)}
-  .question-area{padding:16px}
-  .score-grid{grid-template-columns:1fr 1fr}
-  .start-card,.history-card{padding:22px 16px}
-  .cat-grid{grid-template-columns:1fr}
-  .res-body{padding:20px}
+  /* start screen */
+  .start-card,.history-card{padding:20px 14px;border-radius:10px}
+  .start-top h1{font-size:1.25rem}
   .mode-row{grid-template-columns:1fr}
+  .cat-grid{grid-template-columns:1fr 1fr}
+  #screen-start{padding:16px 10px}
+
+  /* test header — stack controls */
+  .test-header{padding:10px 14px;flex-wrap:wrap;gap:6px}
+  .test-header-left h2{font-size:.9rem}
+  .header-controls{gap:6px;flex-wrap:wrap}
+  .hdr-btn{padding:7px 10px;font-size:.75rem}
+  .timer{padding:6px 10px;font-size:.85rem;min-width:58px}
+  .mode-badge{font-size:.7rem;padding:4px 8px}
+
+  /* nav panel moves above question on mobile */
+  .test-body{flex-direction:column}
+  .nav-panel{width:100%;border-right:none;border-bottom:1px solid var(--border);padding:10px 12px}
+  .nav-grid{grid-template-columns:repeat(6,1fr);gap:4px}
+  .nav-dot{width:34px;height:34px;font-size:.7rem}
+  .nav-legend{display:none}
+
+  /* question area */
+  .question-area{padding:14px 14px}
+  .q-text{font-size:.97rem}
+  .opt{padding:13px 12px;gap:10px;min-height:50px}
+  .opt-text{font-size:.88rem}
+  .opt-letter{width:24px;height:24px;font-size:.7rem}
+  .q-actions{margin-top:20px;gap:8px}
+  .btn-nav{padding:11px 16px;font-size:.85rem;flex:1}
+  .btn-submit-test{padding:11px 18px;font-size:.88rem;width:100%}
+
+  /* results screen */
+  #screen-results{padding:14px 10px}
+  .res-card{border-radius:10px}
+  .res-header{padding:18px 16px}
+  .res-header h1{font-size:1.15rem}
+  .res-body{padding:16px 14px}
+  .score-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .stat .num{font-size:1.4rem}
+  .res-actions{flex-direction:column}
+  .res-btn{min-width:unset;padding:13px}
+  .pf-verdict{font-size:1.6rem}
+  .history-table{font-size:.78rem}
+  .history-table th,.history-table td{padding:7px 8px}
 }
 </style>
 </head>
