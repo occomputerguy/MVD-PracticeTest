@@ -1464,46 +1464,55 @@
   };
 
   const total = Object.keys(answers).length;
-  const answered = {}; // tracks which questions have been answered
+  // per question: { attempts: number, correct: bool }
+  const state = {};
 
   function updateLiveScore() {
-    let correct = 0, wrong = 0;
-    for (const q in answered) {
-      if (answered[q] === 'correct') correct++;
-      else wrong++;
+    let correct = 0, inProgress = 0;
+    for (const q in state) {
+      if (state[q].correct) correct++;
+      else inProgress++;
     }
-    const done = correct + wrong;
     document.getElementById('live-correct').textContent = correct;
-    document.getElementById('live-wrong').textContent = wrong;
-    document.getElementById('live-done').textContent = done + ' / ' + total;
-    const pct = done > 0 ? Math.round((correct / done) * 100) : 0;
-    document.getElementById('live-pct').textContent = done > 0 ? pct + '%' : '--';
+    document.getElementById('live-wrong').textContent = inProgress;
+    document.getElementById('live-done').textContent = Object.keys(state).length + ' / ' + total;
+    const pct = correct > 0 ? Math.round((correct / total) * 100) : 0;
+    document.getElementById('live-pct').textContent = correct > 0 ? pct + '%' : '--';
   }
 
   function gradeQuestion(q) {
-    if (answered[q]) return; // already graded — don't re-grade
     const card = document.getElementById('card-' + q);
     const fb   = document.getElementById('fb-' + q);
     const selected = document.querySelector(`input[name="q${q}"]:checked`);
     const correctAns = answers[q];
     if (!selected) return;
+    if (state[q] && state[q].correct) return; // already locked in correct
 
-    // lock radios
-    document.querySelectorAll(`input[name="q${q}"]`).forEach(r => r.disabled = true);
+    // init state for this question
+    if (!state[q]) state[q] = { attempts: 0, correct: false };
+    state[q].attempts++;
+
+    // clear previous highlights
+    document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
+      r.parentElement.classList.remove('correct-answer', 'wrong-answer');
+    });
+    card.classList.remove('correct', 'incorrect');
+    fb.className = 'feedback';
 
     if (selected.value === correctAns) {
-      answered[q] = 'correct';
+      state[q].correct = true;
+      // lock the question now that it's correct
+      document.querySelectorAll(`input[name="q${q}"]`).forEach(r => r.disabled = true);
       card.classList.add('correct');
       fb.classList.add('correct');
-      fb.textContent = '✅ Correct!';
+      const firstTry = state[q].attempts === 1;
+      fb.textContent = firstTry ? '✅ Correct!' : `✅ Correct! (took ${state[q].attempts} tries)`;
       selected.parentElement.classList.add('correct-answer');
     } else {
-      answered[q] = 'wrong';
       card.classList.add('incorrect');
       fb.classList.add('incorrect');
-      fb.textContent = `❌ Incorrect — correct answer: ${correctAns}`;
+      fb.textContent = '❌ Not quite — try again!';
       selected.parentElement.classList.add('wrong-answer');
-      document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
     }
     updateLiveScore();
   }
@@ -1515,36 +1524,44 @@
     });
   }
 
-  // "See Final Score" button — grades any skipped questions and shows summary
+  // "See Final Score" button — reveals answers for skipped, shows summary
   document.getElementById('btn-submit').addEventListener('click', function () {
-    let correct = 0, wrong = 0, skipped = 0;
+    let firstTry = 0, multiTry = 0, skipped = 0;
 
     for (let q = 1; q <= total; q++) {
-      if (!answered[q]) {
-        // unanswered — show as skipped
+      if (!state[q] || !state[q].correct) {
+        // unanswered or still wrong — reveal correct answer
         const card = document.getElementById('card-' + q);
         const fb   = document.getElementById('fb-' + q);
         const correctAns = answers[q];
-        skipped++;
+        if (!state[q]) skipped++;
+        else multiTry++; // attempted but never got right
+        card.classList.remove('correct', 'incorrect');
         card.classList.add('skipped');
-        fb.classList.add('skipped');
-        fb.textContent = `⚠️ Skipped — correct answer: ${correctAns}`;
+        fb.className = 'feedback skipped';
+        fb.textContent = `⚠️ Answer: ${correctAns}`;
+        document.querySelectorAll(`input[name="q${q}"]`).forEach(r => {
+          r.parentElement.classList.remove('correct-answer', 'wrong-answer');
+          r.disabled = true;
+        });
         document.querySelector(`input[name="q${q}"][value="${correctAns}"]`).parentElement.classList.add('correct-answer');
-        document.querySelectorAll(`input[name="q${q}"]`).forEach(r => r.disabled = true);
-      } else if (answered[q] === 'correct') {
-        correct++;
+      } else if (state[q].attempts === 1) {
+        firstTry++;
       } else {
-        wrong++;
+        multiTry++;
       }
     }
 
-    const pct = Math.round((correct / total) * 100);
+    const correct = firstTry + (Object.keys(state).filter(q => state[q].correct && state[q].attempts > 1).length);
+    const totalCorrect = Object.keys(state).filter(q => state[q].correct).length;
+    const pct = Math.round((firstTry / total) * 100);
+
     const scoreBox = document.getElementById('score-box');
     scoreBox.style.display = 'block';
     document.getElementById('score-pct').textContent = pct + '%';
-    document.getElementById('score-fraction').textContent = `${correct} / ${total} correct`;
-    document.getElementById('cnt-correct').textContent = correct;
-    document.getElementById('cnt-wrong').textContent = wrong;
+    document.getElementById('score-fraction').textContent = `${firstTry} / ${total} correct on first try`;
+    document.getElementById('cnt-correct').textContent = firstTry;
+    document.getElementById('cnt-wrong').textContent = multiTry;
     document.getElementById('cnt-skip').textContent = skipped;
 
     const msg = document.getElementById('pass-msg');
@@ -1552,7 +1569,7 @@
       msg.textContent = '🎉 Passing score! Great work!';
       msg.className = 'pass-msg pass';
     } else {
-      msg.textContent = `Keep studying — you need 80% to pass (${Math.ceil(total * 0.8)} correct).`;
+      msg.textContent = `You need 80% first-try to pass (${Math.ceil(total * 0.8)} correct). Keep practicing!`;
       msg.className = 'pass-msg fail';
     }
 
@@ -1571,7 +1588,7 @@
         r.parentElement.classList.remove('correct-answer', 'wrong-answer');
         r.disabled = false;
       });
-      delete answered[q];
+      delete state[q];
     }
     const scoreBox = document.getElementById('score-box');
     scoreBox.style.display = 'none';
